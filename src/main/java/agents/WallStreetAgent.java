@@ -15,6 +15,8 @@ import jadex.micro.annotation.ProvidedService;
 import jadex.micro.annotation.ProvidedServices;
 import jadex.micro.annotation.RequiredService;
 import jadex.micro.annotation.RequiredServices;
+import jadex.rules.eca.ChangeInfo;
+import agents.services.IPlayerService;
 import agents.services.IWallStreetService;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Trigger;
@@ -25,6 +27,7 @@ import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.RequiredServiceInfo;
 import jadex.bridge.service.annotation.Service;
+import jadex.bridge.service.search.SServiceProvider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +41,7 @@ import java.util.Map;
 })
 @RequiredServices(@RequiredService(name="clockservice", type=IClockService.class, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM)))
 
-public class WallStreetBDI implements IWallStreetService{
+public class WallStreetAgent implements IWallStreetService{
 	public static enum Player{
 		INVESTOR, MANAGER
 	}
@@ -47,17 +50,17 @@ public class WallStreetBDI implements IWallStreetService{
     @Agent
     protected IInternalAccess agentAccess;
 	
-	@AgentFeature 
-	protected IBDIAgentFeature bdiFeature;
+	//@AgentFeature 
+	//protected IBDIAgentFeature bdiFeature;
 
-	@AgentCreated
-	public void init(){
-	}
+	//@AgentCreated
+	//public void init(){
+	//}
 	
-	@AgentBody
-	public void executeBody(){
-		bdiFeature.adoptPlan("introducePlayersEachOther");
-	}
+	//@AgentBody
+	//public void executeBody(){
+	//	bdiFeature.adoptPlan("introducePlayersEachOther");
+	//}
 	
 	@Belief
     protected List<IComponentIdentifier> players = new ArrayList<>();
@@ -66,13 +69,15 @@ public class WallStreetBDI implements IWallStreetService{
 	protected int playersSize = players.size();
 	
 	
-	@Plan(trigger=@Trigger(factchangeds="playersSize"))
-	public void introducePlayersEachOther(ChangeEvent<Object> event)
+	//@Plan(trigger=@Trigger(factchangeds="playersSize"))
+	public void introducePlayersToEachOther()
 	{
-//		ChangeEvent<Integer> change = ((ChangeEvent<Integer>)event.getValue());
+		System.out.println("contact players");
+		for(IComponentIdentifier player : players){
+			IPlayerService playerService = SServiceProvider.getService(agentAccess, player, IPlayerService.class).get();
+			playerService.introduceToOtherPlayers();
 
-		System.out.println("> " + event);
-	    System.out.println(">" + players.size());
+		}
 	}
 	
 	protected Map<IComponentIdentifier, SubscriptionIntermediateFuture<String>> investors;
@@ -86,7 +91,9 @@ public class WallStreetBDI implements IWallStreetService{
 		Future <Boolean> ret = new Future<>(true);
 		players.add(investor);
 		
-
+		if(players.size() >= 4){
+			introducePlayersToEachOther();
+		}
 		
 		return ret;
 	}

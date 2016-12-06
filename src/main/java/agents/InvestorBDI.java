@@ -1,7 +1,7 @@
 package agents;
 
 import agents.services.IWallStreetService;
-import agents.WallStreetBDI.Player;
+import agents.WallStreetAgent.Player;
 //import agents.WallStreetAgent.Player;
 import agents.services.IInvestorService;
 import jadex.bridge.IInternalAccess;
@@ -20,30 +20,12 @@ import jadex.micro.annotation.ProvidedServices;
 @Agent
 @Service
 @ProvidedServices({ @ProvidedService(type = IInvestorService.class) })
-public class InvestorAgent implements IInvestorService {
+public class InvestorBDI extends PlayerBDI implements IInvestorService {
 
-	@Agent
-	protected IInternalAccess agent;
-
-	@ServiceIdentifier
-	protected IServiceIdentifier serviceIdentifier;
-
-	@AgentBody
-	public void body() {
-		System.out.println("here.");
-
-		SServiceProvider
-				.getServices(agent.getExternalAccess(), IWallStreetService.class, RequiredServiceInfo.SCOPE_PLATFORM)
-				.addResultListener(new IntermediateDefaultResultListener<IWallStreetService>() {
-					public void intermediateResultAvailable(IWallStreetService wallStreet) {
-
-						wallStreet.join(agent.getComponentIdentifier(), Player.INVESTOR)
-						.addResultListener(v -> {
-								System.out.println("xxx");
-						});
-					}
-				});
-
+	public InvestorBDI() {
+		super(Player.INVESTOR);
 	}
 
+
+	
 }

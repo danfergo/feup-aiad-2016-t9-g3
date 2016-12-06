@@ -2,9 +2,9 @@ package game;
 
 import jadex.base.PlatformConfiguration;
 import jadex.base.Starter;
-import agents.InvestorAgent;
-import agents.ManagerAgent;
-import agents.WallStreetBDI;
+import agents.InvestorBDI;
+import agents.ManagerBDI;
+import agents.WallStreetAgent;
 
 public class Game {
 	public static void main(String[] args) {
@@ -13,12 +13,12 @@ public class Game {
         //config.setClock(true);
         
         // Add WallStreet
-        config.addComponent("agents.WallStreetBDI.class");
+        config.addComponent("agents.WallStreetAgent.class");
         
         // Add Investors and Managers
         for(int i = 0; i < 4; i++){
-            config.addComponent(InvestorAgent.class);
-            config.addComponent(ManagerAgent.class);
+            config.addComponent("agents.InvestorBDI.class");
+            config.addComponent("agents.ManagerBDI.class");
         }
         
         
