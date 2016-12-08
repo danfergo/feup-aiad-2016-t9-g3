@@ -1,6 +1,7 @@
-package agents.services;
+package services;
 
 import jadex.commons.future.IFuture;
 
 public interface IInvestorService {
+	
 }

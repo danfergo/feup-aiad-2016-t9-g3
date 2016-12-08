@@ -1,6 +1,5 @@
 package agents;
 
-
 import jadex.bridge.service.types.clock.IClockService;
 import jadex.commons.future.Future;
 import jadex.commons.future.IFuture;
@@ -16,8 +15,8 @@ import jadex.micro.annotation.ProvidedServices;
 import jadex.micro.annotation.RequiredService;
 import jadex.micro.annotation.RequiredServices;
 import jadex.rules.eca.ChangeInfo;
-import agents.services.IPlayerService;
-import agents.services.IWallStreetService;
+import services.IPlayerService;
+import services.IWallStreetService;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Trigger;
 import jadex.bdiv3.annotation.Plan;
@@ -31,73 +30,86 @@ import jadex.bridge.service.search.SServiceProvider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import classes.Deck;
+import classes.Investor;
+import classes.Manager;
+import classes.Market;
+import classes.Player;
+
 @Agent
 @Service
-@ProvidedServices({
-    @ProvidedService(type=IWallStreetService.class)
-})
-@RequiredServices(@RequiredService(name="clockservice", type=IClockService.class, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM)))
+@ProvidedServices({ @ProvidedService(type = IWallStreetService.class) })
+@RequiredServices(@RequiredService(name = "clockservice", type = IClockService.class, binding = @Binding(scope = RequiredServiceInfo.SCOPE_PLATFORM)))
 
-public class WallStreetAgent implements IWallStreetService{
-	public static enum Player{
+public class WallStreetAgent implements IWallStreetService {
+	public static enum PlayingMode {
 		INVESTOR, MANAGER
 	}
-	
-	
-    @Agent
-    protected IInternalAccess agentAccess;
-	
-	//@AgentFeature 
-	//protected IBDIAgentFeature bdiFeature;
 
-	//@AgentCreated
-	//public void init(){
-	//}
-	
-	//@AgentBody
-	//public void executeBody(){
-	//	bdiFeature.adoptPlan("introducePlayersEachOther");
-	//}
-	
+	public static enum GameState {
+		ESTABLISHING_GAME, TRADING, 
+	}
+
+	private static int numberOfPlayers = 11;
+
+	@Agent
+	protected IInternalAccess agentAccess;
+
 	@Belief
-    protected List<IComponentIdentifier> players = new ArrayList<>();
-	
-	@Belief(dynamic=true)
-	protected int playersSize = players.size();
-	
-	
-	//@Plan(trigger=@Trigger(factchangeds="playersSize"))
-	public void introducePlayersToEachOther()
-	{
-		System.out.println("contact players");
-		for(IComponentIdentifier player : players){
-			IPlayerService playerService = SServiceProvider.getService(agentAccess, player, IPlayerService.class).get();
-			playerService.introduceToOtherPlayers();
+	protected List<Player> players = new ArrayList<>();
+
+	@Belief
+	WallStreetAgent.GameState gameState = WallStreetAgent.GameState.ESTABLISHING_GAME;
+
+	protected Market market = new Market();
+	protected Deck companiesDeck = new Deck(market);
+
+
+	public void introducePlayersToEachOther() {
+		for (Player player : players) {
+			ArrayList<Player> otherPlayers = new ArrayList<>(players);
+			otherPlayers.remove(otherPlayers.indexOf(player));
+			
+			IPlayerService playerService = SServiceProvider
+					.getService(agentAccess, player.getComponentIdentifier(), IPlayerService.class).get();
+			playerService.introduceToOtherPlayers(otherPlayers);
 
 		}
 	}
-	
-	protected Map<IComponentIdentifier, SubscriptionIntermediateFuture<String>> investors;
-	protected Map<IComponentIdentifier, SubscriptionIntermediateFuture<String>> managers;
 
-    
+	public void announceRoundBegin() {
+		gameState = GameState.TRADING;
+		for (Player player : players) {
+			IPlayerService playerService = SServiceProvider
+					.getService(agentAccess, player.getComponentIdentifier(), IPlayerService.class).get();
+			playerService.updateGameState(GameState.TRADING);
+		}
+	}
 
 	@Override
-	
-	public IFuture<Boolean> join(IComponentIdentifier investor, Player playingAs) {
-		Future <Boolean> ret = new Future<>(true);
-		players.add(investor);
-		
-		if(players.size() >= 4){
-			introducePlayersToEachOther();
+	public IFuture<Player> join(IComponentIdentifier componentIdentifier, PlayingMode playingAs) {
+		Future<Player> ret = new Future<>();
+
+		if (players.size() < numberOfPlayers) {
+			Player player = playingAs.equals(PlayingMode.INVESTOR) 
+					? new Investor(componentIdentifier)
+					: new Manager(componentIdentifier, companiesDeck.fetchCompanies(2));
+			players.add(player);
+			ret.setResult(player);
+
+			if (players.size() == numberOfPlayers) {
+				introducePlayersToEachOther();
+				announceRoundBegin();
+			}
+		} else {
+			ret.setResult(null);
 		}
-		
+
 		return ret;
 	}
-
-
 
 }
