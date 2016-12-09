@@ -109,8 +109,8 @@ public class ManagerBDI extends PlayerBDI implements IManagerService {
 
 	@Override
 	public IFuture<Boolean> closeDeal(Company company) {
-		
-		return null;
+		Future<Boolean> future = new Future<>();
+		return future;
 	}
 	
 

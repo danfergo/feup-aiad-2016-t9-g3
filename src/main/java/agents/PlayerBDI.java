@@ -8,6 +8,7 @@ import java.util.Random;
 
 import agents.PlayerBDI.Connect;
 import agents.WallStreetAgent.PlayingMode;
+import classes.Market;
 import classes.Player;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Capability;
@@ -21,6 +22,8 @@ import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.RequiredServiceInfo;
 import jadex.bridge.service.annotation.Service;
 import jadex.bridge.service.search.SServiceProvider;
+import jadex.commons.future.Future;
+import jadex.commons.future.IFuture;
 import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
@@ -36,7 +39,7 @@ import jadex.bdiv3.annotation.Trigger;
 @Agent
 @Service
 @ProvidedServices({ @ProvidedService(type = IPlayerService.class) })
-public class PlayerBDI implements IPlayerService {
+public abstract class PlayerBDI implements IPlayerService {
 	
 	@Agent
 	protected IInternalAccess agent;
@@ -44,15 +47,6 @@ public class PlayerBDI implements IPlayerService {
 	@AgentFeature
 	protected IBDIAgentFeature bdiFeature;
 
-	
-	@Goal
-	public class Connect {
-		
-		IWallStreetService wallStreet;
-		Player player;
-
-	}
-	
 	private PlayingMode playingAs;
 
 	public PlayingMode getPlayingAs() {
@@ -66,8 +60,16 @@ public class PlayerBDI implements IPlayerService {
 		this.playingAs = playingAs;
 	}
 
+
 	
-	
+	@Goal
+	public class Connect {
+		
+		IWallStreetService wallStreet;
+		Player player;
+
+	}
+		
 	@Plan(trigger=@Trigger(goals=Connect.class))
 	public void connectToWallStreet(Connect goal){
 		ArrayList<IWallStreetService> wallStreets = (ArrayList<IWallStreetService>)SServiceProvider.getServices(agent.getExternalAccess(), IWallStreetService.class, RequiredServiceInfo.SCOPE_PLATFORM).get();
@@ -94,6 +96,8 @@ public class PlayerBDI implements IPlayerService {
 	
 	@Belief
     protected List<Player> otherPlayers = new ArrayList<>();
+
+	private Market market;
 	
 	
 	
@@ -115,17 +119,21 @@ public class PlayerBDI implements IPlayerService {
 	 * IPlayerService implementation  BEGIN
 	 */
 	@Override
-	public void introduceToOtherPlayers(List<Player> otherPlayers) {
+	public IFuture<Void> syncGameInformation(Player self, List<Player> otherPlayers, Market market) {
+		this.self = self;
 		this.otherPlayers = otherPlayers;
-		System.out.println("Other (" + otherPlayers.size()+ ") players known.");
-	
+		this.market = market;
+		System.out.println("(" + self.getComponentIdentifier().getLocalName()+ ") knows (" + otherPlayers.size()+ ") other players.");
+		return Future.DONE;
 	}
 
 
 
 	@Override
-	public void updateGameState(WallStreetAgent.GameState gameState) {
+	public IFuture<Void> updateGameState(WallStreetAgent.GameState gameState) {
 		this.gameState = gameState;
+		System.out.println("(" + self.getComponentIdentifier().getLocalName()+ ") ready to " + gameState);
+		return Future.DONE;
 	}
 
 

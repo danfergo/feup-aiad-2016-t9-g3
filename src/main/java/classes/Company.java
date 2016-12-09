@@ -13,7 +13,7 @@ public class Company {
 	public int currentOffer ;
 	public Investor currentInvestor;
 	public boolean closed;
-
+	public Manager owner;
 	
 	Company(Market.Color color, boolean x2, int id){
 		this.color = color;
@@ -29,5 +29,5 @@ public class Company {
 		
 		return ((Company)other).id == this.id;
 	}
-	
+		
 }

@@ -3,21 +3,26 @@ package classes;
 import java.util.HashMap;
 import java.util.Random;
 
+import jadex.commons.transformation.annotations.IncludeFields;
 
+@IncludeFields
 public class Market {
 
+	@IncludeFields
 	public enum Color {
 		Blue, Green, Yellow, Red
 	}
 
 	private Random rnd;
 
+	@IncludeFields
 	public class Fluctuation {
 
-		int[] dice;
-		int[] values;
-		static final int startValue = 30;
-		static final int startPosition = 3;
+		
+		public int[] dice;
+		public int[] values;
+		private static final int startValue = 30;
+		private static final int startPosition = 3;
 
 		int currentPosition = startPosition;
 
@@ -49,7 +54,7 @@ public class Market {
 		
 	}
 
-	private HashMap<Color, Fluctuation> fluctuations = new HashMap<>();
+	public HashMap<Color, Fluctuation> fluctuations = new HashMap<>();
 
 	public Market() {
 		rnd = new Random(System.nanoTime());
@@ -69,10 +74,17 @@ public class Market {
 	}
 	
 	
-	void rollTheDices(){
+	public void rollTheDices(){
 	    for(Color color :  fluctuations.keySet()){
 	    	fluctuations.get(color).rollTheDice();
 	    }
+	}
+
+
+	public int calcCompanyValue(Company company) {
+		Fluctuation fluctuation = fluctuations.get(company.color);
+		
+		return company.x2 ? 2*fluctuation.getCurrentValue() : fluctuation.getCurrentValue() ;
 	}
 	
 
