@@ -26,7 +26,6 @@ public class Company {
 		if (other == null || !Company.class.isAssignableFrom(other.getClass())) {
 	        return false;
 	    }
-		
 		return ((Company)other).id == this.id;
 	}
 		

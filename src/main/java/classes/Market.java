@@ -24,8 +24,10 @@ public class Market {
 		private static final int startValue = 30;
 		private static final int startPosition = 3;
 
-		int currentPosition = startPosition;
+		public int currentPosition = startPosition;
+		public int currentDiceIndex = -1;
 
+		
 		Fluctuation(int[] values, int[] dice) {
 			this.values = values;
 			this.dice = dice;
@@ -33,8 +35,8 @@ public class Market {
 		}
 
 		int rollTheDice() {
-			int i = rnd.nextInt(dice.length);
-			int newPosition = currentPosition + dice[i];
+			currentDiceIndex = rnd.nextInt(dice.length);
+			int newPosition = currentPosition + dice[currentDiceIndex];
 			currentPosition = newPosition < 0 ? 0
 					: (newPosition > (values.length - 1) ? (values.length - 1) : newPosition);
 			return getCurrentValue();

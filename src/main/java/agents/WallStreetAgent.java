@@ -77,7 +77,7 @@ public class WallStreetAgent implements IWallStreetService {
 	WallStreetAgent.GameState gameState = WallStreetAgent.GameState.ESTABLISHING_GAME;
 
 	protected Market market = new Market();
-	protected Deck companiesDeck = new Deck(market);
+	protected Deck companiesDeck = new Deck();
 
 	public Future<Void> syncGameInformation() {
 		Future<Void> all = new Future<Void>();

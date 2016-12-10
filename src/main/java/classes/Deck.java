@@ -9,7 +9,6 @@ import jadex.commons.transformation.annotations.IncludeFields;
 public class Deck {
 
 	private static int idGenerator = 1;
-	Market market;
 	ArrayList<Company> companies = new ArrayList<>();
 
 	private static ArrayList<Company> generateCompanies(int quantity, Market.Color color, boolean x2) {
@@ -20,8 +19,7 @@ public class Deck {
 		return companies;
 	}
 
-	public Deck(Market market) {
-		this.market = market;
+	public Deck() {
 
 		companies.addAll(generateCompanies(11, Market.Color.Blue, false));
 		companies.addAll(generateCompanies(11, Market.Color.Yellow, false));
