@@ -15,6 +15,8 @@ public class Market {
 	}
 
 	private Random rnd;
+	
+	private int round;
 
 	@IncludeFields
 	public class Fluctuation {
@@ -62,6 +64,7 @@ public class Market {
 
 	public Market() {
 		rnd = new Random(System.nanoTime());
+		this.round = 0;
 
 		fluctuations.put(Color.Blue,
 				new Fluctuation(new int[] { 20, 20, 20, 30, 30, 30, 40, 40 }, new int[] { -1, -1, 0, 0, +1, +1 }));
@@ -113,6 +116,14 @@ public class Market {
 			E += pX * fluctuation.calcRevenue(i);
 		}
 		return E;
+	}
+	
+	public void incRound() {
+		this.round++;
+	}
+	
+	public int getRound() {
+		return this.round;
 	}
 
 }
