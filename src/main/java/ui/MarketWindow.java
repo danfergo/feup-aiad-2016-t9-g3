@@ -22,6 +22,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.general.DefaultPieDataset;
+
 import classes.Company;
 import classes.Deck;
 import classes.Manager;
@@ -51,10 +56,10 @@ public class MarketWindow extends JFrame {
 	}
 
 	public void draw() {
-		
+
 		JPanel container = new JPanel();
 		JScrollPane scrPane = new JScrollPane(container);
-		
+
 		setContentPane(scrPane);
 
 		setSize(900, 600);
@@ -63,24 +68,39 @@ public class MarketWindow extends JFrame {
 
 		GridLayout mainGrid = new GridLayout(2, 2);
 		container.setLayout(mainGrid);
-		
+
 		container.add(drawFluctuations());
 		container.add(drawManagers());
 		container.add(drawChart());
-
 
 		mainGrid.addLayoutComponent("something", new Label("yyyy"));
 		pack();
 		setVisible(true);
 	}
 
-	JPanel drawChart(){
-		JPanel panel = new JPanel(new GridLayout(market.fluctuations.size(), 1));
+	JPanel drawChart() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+
+		DefaultPieDataset dataset = new DefaultPieDataset();
+		dataset.setValue("IPhone 5s", new Double(20));
+		dataset.setValue("SamSung Grand", new Double(20));
+		dataset.setValue("MotoG", new Double(40));
+		dataset.setValue("Nokia Lumia", new Double(10));
+
+		JFreeChart chart = ChartFactory.createPieChart("Mobile Sales", // chart
+																		// title
+				dataset, // data
+				true, // include legend
+				true, false);
+
+		ChartPanel CP = new ChartPanel(chart);
+		panel.add(CP, BorderLayout.CENTER);
+
 		return panel;
 
 	}
-	
-	
+
 	JPanel drawFluctuations() {
 		JPanel panel = new JPanel(new GridLayout(market.fluctuations.size(), 1));
 		panel.setMaximumSize(new Dimension(450, 600));
@@ -126,10 +146,11 @@ public class MarketWindow extends JFrame {
 		if (fluctuation.currentPosition == index) {
 			fcPanel.setBackground(Color.BLACK);
 			label.setForeground(Color.WHITE);
-			//Font font = label.getFont();
-			//Map attributes = font.getAttributes();
-			//attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-			//label.setFont(font.deriveFont(attributes));
+			// Font font = label.getFont();
+			// Map attributes = font.getAttributes();
+			// attributes.put(TextAttribute.UNDERLINE,
+			// TextAttribute.UNDERLINE_ON);
+			// label.setFont(font.deriveFont(attributes));
 		}
 		fcPanel.add(label);
 		return fcPanel;
@@ -169,10 +190,10 @@ public class MarketWindow extends JFrame {
 
 		img.setBackground(ColorMap.get(company.color));
 		if (company.owner != null && company.owner.getComponentIdentifier() != null) {
-		
-			JLabel oLabel1 = new JLabel(company.name); 
+
+			JLabel oLabel1 = new JLabel(company.name);
 			JLabel oLabel2 = new JLabel(company.owner.getComponentIdentifier().getLocalName());
-			//oLabel1.setFont(oLabel1.getFont().deriveFont(18.0f));
+			// oLabel1.setFont(oLabel1.getFont().deriveFont(18.0f));
 			img.add(oLabel1);
 			img.add(oLabel2);
 		}
@@ -180,7 +201,7 @@ public class MarketWindow extends JFrame {
 
 		JPanel x2 = new JPanel();
 		x2.setMaximumSize(new Dimension(75, 100));
-		
+
 		x2.setBackground(ColorMap.get(company.color));
 		if (company.x2) {
 			JLabel x2Label = new JLabel("X2");
@@ -220,26 +241,24 @@ public class MarketWindow extends JFrame {
 
 		return panel;
 	}
-/*
-	public static void main(String[] args) throws InterruptedException {
-		Market market = new Market();
-		Deck deck = new Deck();
-		ArrayList<Manager> managers = new ArrayList<>();
-		managers.add(new Manager(null, deck.fetchCompanies(2)));
-		managers.add(new Manager(null, deck.fetchCompanies(2)));
-		managers.add(new Manager(null, deck.fetchCompanies(3)));
-		managers.add(new Manager(null, deck.fetchCompanies(4)));
-		managers.add(new Manager(null, deck.fetchCompanies(1)));
 
-		MarketWindow window = new MarketWindow(market, managers);
-		window.draw();
-		Thread.sleep(1000);
-
-		market.rollTheDices();
-		window.draw();
-
-	}
-*/
+	/*
+	 * public static void main(String[] args) throws InterruptedException {
+	 * Market market = new Market(); Deck deck = new Deck(); ArrayList<Manager>
+	 * managers = new ArrayList<>(); managers.add(new Manager(null,
+	 * deck.fetchCompanies(2))); managers.add(new Manager(null,
+	 * deck.fetchCompanies(2))); managers.add(new Manager(null,
+	 * deck.fetchCompanies(3))); managers.add(new Manager(null,
+	 * deck.fetchCompanies(4))); managers.add(new Manager(null,
+	 * deck.fetchCompanies(1)));
+	 * 
+	 * MarketWindow window = new MarketWindow(market, managers); window.draw();
+	 * Thread.sleep(1000);
+	 * 
+	 * market.rollTheDices(); window.draw();
+	 * 
+	 * }
+	 */
 	public void setManagers(List<Manager> managers) {
 		this.managers = managers;
 	}
