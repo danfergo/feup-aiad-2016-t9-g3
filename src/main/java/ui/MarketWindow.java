@@ -56,17 +56,25 @@ public class MarketWindow extends JFrame {
 		setPreferredSize(new Dimension(900, 600));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		GridLayout mainGrid = new GridLayout(1, 2);
+		GridLayout mainGrid = new GridLayout(2, 2);
 		getContentPane().setLayout(mainGrid);
 
 		getContentPane().add(drawFluctuations());
 		getContentPane().add(drawManagers());
+		getContentPane().add(drawChart());
 
 		mainGrid.addLayoutComponent("something", new Label("yyyy"));
 		pack();
 		setVisible(true);
 	}
 
+	JPanel drawChart(){
+		JPanel panel = new JPanel(new GridLayout(market.fluctuations.size(), 1));
+		return panel;
+
+	}
+	
+	
 	JPanel drawFluctuations() {
 		JPanel panel = new JPanel(new GridLayout(market.fluctuations.size(), 1));
 		panel.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -196,7 +204,7 @@ public class MarketWindow extends JFrame {
 
 		return panel;
 	}
-
+/*
 	public static void main(String[] args) throws InterruptedException {
 		Market market = new Market();
 		Deck deck = new Deck();
@@ -215,7 +223,7 @@ public class MarketWindow extends JFrame {
 		window.draw();
 
 	}
-
+*/
 	public void setManagers(List<Manager> managers) {
 		this.managers = managers;
 	}
