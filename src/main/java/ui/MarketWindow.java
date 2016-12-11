@@ -53,9 +53,9 @@ public class MarketWindow extends JFrame {
 	public void draw() {
 		
 		JPanel container = new JPanel();
-		JScrollPane scrPane = new JScrollPane(container);
 		
-		setContentPane(scrPane);
+		
+		setContentPane(container);
 
 		setSize(900, 600);
 		setPreferredSize(new Dimension(900, 600));
@@ -69,6 +69,7 @@ public class MarketWindow extends JFrame {
 
 		mainGrid.addLayoutComponent("something", new Label("yyyy"));
 		pack();
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
 	}
 
@@ -126,8 +127,9 @@ public class MarketWindow extends JFrame {
 		return fcPanel;
 	}
 
-	JPanel drawManagers() {
+	JScrollPane drawManagers() {
 		JPanel panel = new JPanel();
+		JScrollPane scrPane = new JScrollPane(panel);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setBorder(BorderFactory.createLineBorder(Color.black));
 
@@ -135,7 +137,7 @@ public class MarketWindow extends JFrame {
 			panel.add(drawCompanies(manager));
 		}
 
-		return panel;
+		return scrPane;
 	}
 
 	JPanel drawCompanies(Manager manager) {
@@ -152,7 +154,7 @@ public class MarketWindow extends JFrame {
 
 	JPanel drawCompany(Company company) {
 		JPanel panel = new JPanel(new GridLayout(2, 2));
-		panel.setMaximumSize(new Dimension(150, 200));
+		panel.setMaximumSize(new Dimension(200, 250));
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		JPanel img = new JPanel(new GridLayout(2, 1));
