@@ -51,21 +51,23 @@ public class MarketWindow extends JFrame {
 
 	Market market;
 	List<Manager> managers;
-	PlayerBalanceChart playerBalanceChart;
-
-
 	
+	PlayerBalanceChart playerBalanceChart;
+	CompanyBalanceChart companyValueChart;
+
+
 	public MarketWindow(Market market, List<Manager> managers) {
 		super("Panic On Wall Street!");
 		this.market = market;
 		this.managers = managers;
 		this.playerBalanceChart = new PlayerBalanceChart();
+		this.companyValueChart = new CompanyBalanceChart();
 		
 		setSize(900, 600);
 		setPreferredSize(new Dimension(900, 600));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		// setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
 	}
 
@@ -91,7 +93,9 @@ public class MarketWindow extends JFrame {
 
 		container.add(drawFluctuations());
 		container.add(drawManagers());
-		container.add(drawChart());
+		container.add(drawPlayersChart());
+		container.add(drawCompaniesChart());
+		
 		
 		JPanel header = new JPanel();
 		JLabel roundNumber = new JLabel("Round " + Integer.toString(market.getRound()));
@@ -103,31 +107,44 @@ public class MarketWindow extends JFrame {
 
 		//mainGrid.addLayoutComponent("something", new Label("yyyy"));
 		pack();
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
-		setVisible(true);
-
+		//setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
-	JTabbedPane drawChart() {
-		JTabbedPane tabbedPane = new JTabbedPane();
+	JPanel drawPlayersChart() {
+		//JTabbedPane tabbedPane = new JTabbedPane();
 		
 		JPanel panel1 = new JPanel();
 		panel1.setLayout(new BorderLayout());
 		ChartPanel CP = new ChartPanel(playerBalanceChart.get());
 		panel1.add(CP, BorderLayout.CENTER);
-		tabbedPane.addTab("Players", null, panel1);
+		/*tabbedPane.addTab("Players", null, panel1);
 
 		JComponent panel2 = new JPanel();
 		tabbedPane.addTab("Managers", null, panel2);
 
 		JComponent panel3 = new JPanel();
 		tabbedPane.addTab("Investors", null, panel3);
+*/
 
-
-		return tabbedPane;
+		return panel1;
 
 	}
 
+	
+	JPanel drawCompaniesChart() {
+		
+		JPanel panel1 = new JPanel();
+		panel1.setLayout(new BorderLayout());
+		ChartPanel CP = new ChartPanel(companyValueChart.get());
+		panel1.add(CP, BorderLayout.CENTER);
+		return panel1;
+
+	}
+
+	
+	
+	
+	
 	JPanel drawFluctuations() {
 		JPanel panel = new JPanel(new GridLayout(market.fluctuations.size(), 1, 0, 0));
 		panel.setMaximumSize(new Dimension(450, 600));
@@ -309,6 +326,11 @@ public class MarketWindow extends JFrame {
 	public void setManagers(List<Manager> managers) {
 		this.managers = managers;
 	}
+	
+	public void storeCompanies(List<Company> companies) {
+		this.companyValueChart.storeData(companies);
+	}
+	
 
 	public void storePlayersBalance(List<Player> players) {
 		this.playerBalanceChart.storeData(players);

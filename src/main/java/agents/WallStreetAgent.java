@@ -61,9 +61,7 @@ import classes.Player;
 @Service
 @ProvidedServices({ @ProvidedService(type = IWallStreetService.class) })
 @RequiredServices(@RequiredService(name = "clockservice", type = IClockService.class, binding = @Binding(scope = RequiredServiceInfo.SCOPE_PLATFORM)))
-@Arguments({
-	@Argument(name="numP", clazz=Integer.class, defaultvalue="11")
-})
+@Arguments({ @Argument(name = "numP", clazz = Integer.class, defaultvalue = "11") })
 public class WallStreetAgent implements IWallStreetService {
 	@IncludeFields
 	public static enum PlayingMode {
@@ -97,10 +95,9 @@ public class WallStreetAgent implements IWallStreetService {
 	protected Console console;
 	protected MarketWindow marketUI;
 
-
 	@AgentBody
 	void init() {
-		this.numberOfPlayers = (Integer)ia.getArgument("numP");
+		this.numberOfPlayers = (Integer) ia.getArgument("numP");
 		this.console = new Console(ia.getComponentIdentifier());
 		this.marketUI = new MarketWindow(market, getManagers());
 		marketUI.draw();
@@ -116,8 +113,8 @@ public class WallStreetAgent implements IWallStreetService {
 				.collect(Collectors.toList());
 	}
 
-	List<Investor> getValidInvestors() {
-		return players.stream().filter(p -> p instanceof Investor && p.balance >= 0).map(p -> (Investor) p)
+	List<Investor> getInGameInvestors() {
+		return players.stream().filter(p -> p instanceof Investor && p.inGame).map(p -> (Investor) p)
 				.collect(Collectors.toList());
 	}
 
@@ -229,21 +226,22 @@ public class WallStreetAgent implements IWallStreetService {
 		}
 		announceGameStateChange(gameState).get();
 
-		if(gameState == GameState.NEGOTIATION) {
+		if (gameState == GameState.NEGOTIATION) {
 			market.incRound();
-			
+
 		}
-		
+
 		this.refreshUI();
 	}
 
 	void manageGame() {
 		IExecutionFeature exe = ia.getComponentFeature(IExecutionFeature.class);
 		this.marketUI.storePlayersBalance(players);
+		this.marketUI.storeCompanies(getManagersCompanies());
 		exe.waitForDelay(100).get();
 
 		for (int i = 0; i < 5; i++) {
-
+			this.marketUI.storeCompanies(getManagersCompanies());
 			this.marketUI.storePlayersBalance(players);
 
 			changeTo(GameState.NEGOTIATION, true);
@@ -319,7 +317,7 @@ public class WallStreetAgent implements IWallStreetService {
 	}
 
 	private void applyManagersIncome() {
-		List<Investor> investors = getValidInvestors();
+		List<Investor> investors = getInGameInvestors();
 		for (int i = 0; i < investors.size(); i++) {
 			Investor investor = investors.get(i);
 			ArrayList<Company> companies = fetchInvestorCompanies(investor);
@@ -346,6 +344,9 @@ public class WallStreetAgent implements IWallStreetService {
 				}
 			}
 			investor.balance -= totalOffers;
+			if (investor.balance < 0) {
+				investor.inGame = false;
+			}
 		}
 	}
 
@@ -383,8 +384,8 @@ public class WallStreetAgent implements IWallStreetService {
 				System.out.println("SOLD " + companies.size());
 				manager.companies.removeAll(companies);
 				deck.addCompanies(companies);
-				manager.balance += valueOfCompany*companies.size();
-				if(manager.balance < 0){
+				manager.balance += valueOfCompany * companies.size();
+				if (manager.balance < 0) {
 					manager.inGame = false;
 				}
 			}
@@ -395,11 +396,39 @@ public class WallStreetAgent implements IWallStreetService {
 		market.rollTheDices();
 	}
 
+	private void informOtherPlayersAboutOffer(Company company){
+
+		List<Player> players = new ArrayList<>(this.players);
+		Collections.shuffle(players);
+
+		for (Player player : players) {
+			if(!player.equals(company.owner) && player.equals(company.currentInvestor)){
+
+			IPlayerService playerService = SServiceProvider
+					.getService(ia, player.getComponentIdentifier(), IPlayerService.class).get();
+			playerService.informConfirmedOffer(company);
+			}
+		}
+	}
+
 	@Override
-	public IFuture<Void> informOffer(Manager owner, Company company) {
-		Manager m = ((Manager) players.get(players.indexOf(owner)));
-		m.getCompanies().set(m.getCompanies().indexOf(company), company);
-		return Future.DONE;
+	public IFuture<Boolean> informOffer(Company company) {
+		Future<Boolean> future = new Future<>();
+		Player investor = players.get(players.indexOf(company.currentInvestor));
+		Player manager = players.get(players.indexOf(company.owner));
+
+		if (manager.inGame && investor.inGame && gameState.equals(GameState.NEGOTIATION)) {
+
+			Manager m = ((Manager) players.get(players.indexOf(company.owner)));
+			m.getCompanies().set(m.getCompanies().indexOf(company), company);
+			this.marketUI.storeCompanies(getManagersCompanies());
+			future.setResult(true);
+			informOtherPlayersAboutOffer(company);
+		} else {
+			future.setResult(false);
+		}
+
+		return future;
 	}
 
 }

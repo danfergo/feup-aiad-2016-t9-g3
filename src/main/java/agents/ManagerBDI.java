@@ -90,19 +90,19 @@ public class ManagerBDI extends PlayerBDI implements IManagerService {
 	}
 	
 	@Override
-	public IFuture<Boolean> investOn(Investor investor, Company company, int offer, boolean close) {
+	public IFuture<Boolean> investOn(Company offer, boolean close) {
 		Future<Boolean> future = new Future<>();
-		int index = myCompanies().indexOf(company);
+		int index = myCompanies().indexOf(offer);
 
-		if (index != -1 && offer > myCompanies().get(index).currentOffer) {
-			myCompanies().get(index).currentInvestor = investor;
-			myCompanies().get(index).currentOffer = offer;
-			console.log("invests on company " + company.id + " of " + self.getComponentIdentifier().getLocalName() + " "
-					+ offer);
-			wallStreet.informOffer((Manager) self, myCompanies().get(index));
-			future.setResult(true);
+		if (index != -1 && offer.currentOffer > myCompanies().get(index).currentOffer) {
+
+			Boolean success = wallStreet.informOffer(offer).get();
+
+			if(success){
+				myCompanies().set(index, offer);
+			}
+			future.setResult(success);
 		} else {
-			
 			future.setResult(false);
 		}
 		return future;

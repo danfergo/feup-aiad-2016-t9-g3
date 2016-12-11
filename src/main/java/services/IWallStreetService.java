@@ -11,5 +11,5 @@ import jadex.commons.future.ISubscriptionIntermediateFuture;
 
 public interface IWallStreetService {
     public IFuture<Player> join(IComponentIdentifier agent, PlayingMode playingAs);    
-    public IFuture<Void> informOffer(Manager owner, Company company);
+    public IFuture<Boolean> informOffer(Company company);
 }

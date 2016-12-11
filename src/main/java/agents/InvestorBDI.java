@@ -26,6 +26,7 @@ import jadex.bridge.service.annotation.Service;
 import jadex.bridge.service.annotation.ServiceIdentifier;
 import jadex.bridge.service.search.SServiceProvider;
 import jadex.commons.future.DefaultResultListener;
+import jadex.commons.future.IFuture;
 import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
@@ -74,7 +75,6 @@ public class InvestorBDI extends PlayerBDI implements IInvestorService {
 
 		@GoalContextCondition(beliefs = "gameState")
 		protected boolean mantain() {
-			System.out.println("-----------------------<<<<< " + investor.gameState);
 			return investor.gameState.equals(WallStreetAgent.GameState.NEGOTIATION);
 		}
 
@@ -95,14 +95,19 @@ public class InvestorBDI extends PlayerBDI implements IInvestorService {
 	protected void invest() {
 		Manager manager = managers.get(randomGenerator.nextInt(managers.size()));
 		int companyIndex = randomGenerator.nextInt(manager.getCompanies().size());
-		System.out.println("trying to invest ..." + companyIndex);
 
 		Company company = manager.getCompanies().get(companyIndex);
 
 		IManagerService managerService = (IManagerService) SServiceProvider
 				.getService(ia, manager.getComponentIdentifier(), IManagerService.class).get();
-		Boolean sucessfullInvestment = managerService.investOn((Investor) self, company, 20, false).get();
+		Company offer = company.clone();
+		offer.currentInvestor = (Investor)self;
+		offer.currentOffer = 20 + randomGenerator.nextInt(21);
+		
+		Boolean sucessfullInvestment = managerService.investOn(offer, false).get();
+		
 		if (sucessfullInvestment.equals(Boolean.TRUE)) {
+			manager.companies.set(companyIndex, offer);
 			companiesInvestOn++;
 			console.log("SUCCESS");
 		}else{
@@ -118,4 +123,5 @@ public class InvestorBDI extends PlayerBDI implements IInvestorService {
 		// bdiFeature.dispatchTopLevelGoal(new InvestOnCompanies());
 
 	}
+
 }

@@ -8,6 +8,8 @@ import java.util.Random;
 
 import agents.PlayerBDI.Connect;
 import agents.WallStreetAgent.PlayingMode;
+import classes.Company;
+import classes.Manager;
 import classes.Market;
 import classes.Player;
 import jadex.bdiv3.annotation.Belief;
@@ -41,9 +43,7 @@ import jadex.bdiv3.annotation.Trigger;
 @Agent
 @Service
 @ProvidedServices({ @ProvidedService(type = IPlayerService.class) })
-@Arguments({
-	@Argument(name="type", clazz=Integer.class, defaultvalue="11")
-})
+@Arguments({ @Argument(name = "type", clazz = Integer.class, defaultvalue = "11") })
 public abstract class PlayerBDI implements IPlayerService {
 
 	@Agent
@@ -55,7 +55,7 @@ public abstract class PlayerBDI implements IPlayerService {
 	protected Console console;
 
 	private PlayingMode playingAs;
-	
+
 	protected int type;
 
 	public PlayingMode getPlayingAs() {
@@ -98,11 +98,12 @@ public abstract class PlayerBDI implements IPlayerService {
 
 	@AgentBody
 	public void body() {
-		//Connect connect = (Connect) bdiFeature.dispatchTopLevelGoal(new Connect()).get();
+		// Connect connect = (Connect) bdiFeature.dispatchTopLevelGoal(new
+		// Connect()).get();
 		// this.wallStreet = connect.wallStreet;
 		// this.self = connect.player;
-		this.type  = (Integer)ia.getArgument("type");
-		
+		this.type = (Integer) ia.getArgument("type");
+
 		IWallStreetService wallStreet = (IWallStreetService) SServiceProvider
 				.getService(ia.getExternalAccess(), IWallStreetService.class, RequiredServiceInfo.SCOPE_PLATFORM).get();
 		Player player = (Player) wallStreet.join(ia.getComponentIdentifier(), playingAs).get();
@@ -124,15 +125,21 @@ public abstract class PlayerBDI implements IPlayerService {
 		this.self = self;
 		this.otherPlayers = otherPlayers;
 		this.market = market;
-		//console.log("knows (" + otherPlayers.size() + ") other players.");
+		// console.log("knows (" + otherPlayers.size() + ") other players.");
 		return Future.DONE;
 	}
 
 	@Override
 	public IFuture<Void> updateGameState(WallStreetAgent.GameState gameState) {
 		this.gameState = gameState;
-		//console.log("ready to " + gameState);
+		// console.log("ready to " + gameState);
 		return Future.DONE;
 	}
 
+	@Override
+	public IFuture<Void> informConfirmedOffer(Company company) {
+		Manager owner = (Manager) otherPlayers.get(otherPlayers.indexOf(company.owner));
+		owner.companies.add(owner.companies.indexOf(company), company);
+		return Future.DONE;
+	}
 }

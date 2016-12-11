@@ -115,7 +115,7 @@ public class Market {
 		for(int i = 0; i < fluctuation.dice.length; i++){
 			E += pX * fluctuation.calcRevenue(i);
 		}
-		return E;
+		return company.x2 ? 2 * E : E;
 	}
 	
 	public void incRound() {
