@@ -176,23 +176,34 @@ public class WallStreetAgent implements IWallStreetService {
 		List<Company> validOffers;
 
 		// ask each manager for an offer, if more than one valid
+		Company bestOffer = null;
 		do {
-			Collections.shuffle(managersInAuction);
 			validOffers = new ArrayList<>();
 			for (int i = 0; i < managersInAuction.size(); i++) {
-				IManagerService managerService = managersInAuction.get(i).getManagerService(ia);
-				Company offer = managerService.informNewCompanyAuction(company).get();
-				if (offer == null || offer.currentOffer <= company.currentOffer
-						|| managersInAuction.get(i).balance <= company.currentOffer) {
-					managersInAuction.remove(i);
+				Collections.shuffle(managersInAuction);
 
+				IManagerService managerService = managersInAuction.get(i).getManagerService(ia);
+				Company tBestOffer = bestOffer == null ? company : bestOffer;
+				Company offer = managerService.informNewCompanyAuction(tBestOffer).get();
+				if (offer == null || offer.currentOffer <= tBestOffer.currentOffer
+						|| managersInAuction.get(i).balance <= offer.currentOffer) {
+					managersInAuction.remove(i);
 				} else {
-					validOffers.add(offer);
+					bestOffer = offer;
+
+					IExecutionFeature exe = ia.getComponentFeature(IExecutionFeature.class);
+					exe.waitForDelay(100).get();
+
+					validOffers.add(bestOffer);
+					List<Company> tmp = new ArrayList<>();
+					tmp.add(bestOffer);
+
+					this.marketUI.storeCompanies(tmp);
 				}
 			}
 		} while (validOffers.size() > 1);
 
-		return validOffers.size() > 0 ? validOffers.get(0) : null;
+		return bestOffer != null ? bestOffer : null;
 
 	}
 
@@ -220,18 +231,14 @@ public class WallStreetAgent implements IWallStreetService {
 	void changeTo(WallStreetAgent.GameState gameState, boolean sync) {
 		IExecutionFeature exe = ia.getComponentFeature(IExecutionFeature.class);
 
+		if (gameState == GameState.NEGOTIATION || gameState == GameState.AUCTIONING_NEW_COMPANIES) {
+			this.refreshUI();
+		}
 		if (sync) {
 			syncGameInformation().get();
 			exe.waitForDelay(100).get();
 		}
 		announceGameStateChange(gameState).get();
-
-		if (gameState == GameState.NEGOTIATION) {
-			market.incRound();
-
-		}
-
-		this.refreshUI();
 	}
 
 	void manageGame() {
@@ -241,11 +248,13 @@ public class WallStreetAgent implements IWallStreetService {
 		exe.waitForDelay(100).get();
 
 		for (int i = 0; i < 5; i++) {
+			market.incRound();
+
 			this.marketUI.storeCompanies(getManagersCompanies());
 			this.marketUI.storePlayersBalance(players);
 
 			changeTo(GameState.NEGOTIATION, true);
-			exe.waitForDelay(2000).get();
+			exe.waitForDelay(3000).get();
 
 			changeTo(GameState.EXCHANGING_INCOMES, false);
 
@@ -262,7 +271,10 @@ public class WallStreetAgent implements IWallStreetService {
 			this.marketUI.storePlayersBalance(players);
 			changeTo(GameState.AUCTIONING_NEW_COMPANIES, true);
 
-			auctionNewCompanies();
+			if (i < 4) {
+				auctionNewCompanies();
+				exe.waitForDelay(500).get();
+			}
 		}
 		return;
 	}
@@ -325,6 +337,7 @@ public class WallStreetAgent implements IWallStreetService {
 
 			if (investor.balance < totalOffers) {
 				int payment = totalOffers / companies.size();
+				investor.inGame = false;
 
 				for (Company company : companies) {
 					Player registeredOwner = players.get(players.indexOf(company.owner));
@@ -344,9 +357,6 @@ public class WallStreetAgent implements IWallStreetService {
 				}
 			}
 			investor.balance -= totalOffers;
-			if (investor.balance < 0) {
-				investor.inGame = false;
-			}
 		}
 	}
 
@@ -396,17 +406,17 @@ public class WallStreetAgent implements IWallStreetService {
 		market.rollTheDices();
 	}
 
-	private void informOtherPlayersAboutOffer(Company company){
+	private void informOtherPlayersAboutOffer(Company company) {
 
 		List<Player> players = new ArrayList<>(this.players);
 		Collections.shuffle(players);
 
 		for (Player player : players) {
-			if(!player.equals(company.owner) && player.equals(company.currentInvestor)){
+			if (!player.equals(company.owner) && player.equals(company.currentInvestor)) {
 
-			IPlayerService playerService = SServiceProvider
-					.getService(ia, player.getComponentIdentifier(), IPlayerService.class).get();
-			playerService.informConfirmedOffer(company);
+				IPlayerService playerService = SServiceProvider
+						.getService(ia, player.getComponentIdentifier(), IPlayerService.class).get();
+				playerService.informConfirmedOffer(company);
 			}
 		}
 	}
@@ -422,7 +432,9 @@ public class WallStreetAgent implements IWallStreetService {
 			Manager m = ((Manager) players.get(players.indexOf(company.owner)));
 			m.getCompanies().set(m.getCompanies().indexOf(company), company);
 			this.marketUI.storeCompanies(getManagersCompanies());
+
 			future.setResult(true);
+			
 			informOtherPlayersAboutOffer(company);
 		} else {
 			future.setResult(false);

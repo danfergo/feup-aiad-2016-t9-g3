@@ -19,7 +19,7 @@ public class CompanyBalanceChart {
 	double baseTime;
 
 	private XYSeriesCollection dataset;
-	private Map<Company, XYSeries> companySeries;
+	private Map<Integer, XYSeries> companySeries;
 
 	CompanyBalanceChart() {
 		companySeries = new HashMap<>();
@@ -32,11 +32,12 @@ public class CompanyBalanceChart {
 	public XYDataset storeData(List<Company> companies) {
 		double elapsedTime = (System.currentTimeMillis() - baseTime) / 1000;
 		for (Company company : companies) {
-			if (!companySeries.containsKey(company)) {
-				companySeries.put(company, new XYSeries(company.name));
-				dataset.addSeries(companySeries.get(company));
+			if (!companySeries.containsKey(company.id)) {
+				
+				companySeries.put(company.id, new XYSeries(company.name) );
+				dataset.addSeries(companySeries.get(company.id));
 			}
-			companySeries.get(company).add(elapsedTime, company.currentOffer);
+			companySeries.get(company.id).add(elapsedTime, company.currentOffer);
 		}
 
 		return dataset;

@@ -11,6 +11,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import classes.Investor;
 import classes.Player;
 
 public class PlayerBalanceChart {
@@ -33,8 +34,11 @@ public class PlayerBalanceChart {
 		double elapsedTime = (System.currentTimeMillis() - baseTime) / 1000;
 		for (Player player : players) {
 			if (!playersSeries.containsKey(player)) {
+				
+				String im = player instanceof Investor ? "I. " : " M. ";
+				
 				XYSeries series = playersSeries.put(player,
-						new XYSeries(player.getComponentIdentifier().getLocalName()));
+						new XYSeries(im + player.getComponentIdentifier().getLocalName()));
 				dataset.addSeries(playersSeries.get(player));
 			}
 			playersSeries.get(player).add(elapsedTime, player.balance);

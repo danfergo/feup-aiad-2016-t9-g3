@@ -131,9 +131,9 @@ public class ManagerBDI extends PlayerBDI implements IManagerService {
 	public IFuture<Company> informNewCompanyAuction(Company company) {
 		Future<Company> future = new Future<Company>();
 		float rnd = randomGenerator.nextInt(10);
-		if (rnd < 8) {
+		if (rnd < 6) {
 			company.owner = (Manager) self;
-			company.currentOffer += 30;
+			company.currentOffer += 20 + randomGenerator.nextInt(5);
 			future.setResult(company);
 		} else {
 			future.setResult(null);

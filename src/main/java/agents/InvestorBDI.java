@@ -20,6 +20,7 @@ import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.model.MProcessableElement.ExcludeMode;
 import jadex.bdiv3.annotation.Trigger;
 import jadex.bridge.IInternalAccess;
+import jadex.bridge.component.IExecutionFeature;
 import jadex.bridge.service.IServiceIdentifier;
 import jadex.bridge.service.RequiredServiceInfo;
 import jadex.bridge.service.annotation.Service;
@@ -78,9 +79,9 @@ public class InvestorBDI extends PlayerBDI implements IInvestorService {
 			return investor.gameState.equals(WallStreetAgent.GameState.NEGOTIATION);
 		}
 
-		@GoalTargetCondition(beliefs = "companiesInvestOn")
+		@GoalTargetCondition(beliefs = "selfBalance")
 		protected boolean target() {
-			return investor.companiesInvestOn == 5;
+			return investor.getSelfBalance() < 50;
 		}
 
 		@GoalCreationCondition(beliefs = { "gameState" })
@@ -90,9 +91,12 @@ public class InvestorBDI extends PlayerBDI implements IInvestorService {
 		}
 
 	}
+	
 
 	@Plan(trigger = @Trigger(goals = InvestOnCompanies.class))
 	protected void invest() {
+
+
 		Manager manager = managers.get(randomGenerator.nextInt(managers.size()));
 		int companyIndex = randomGenerator.nextInt(manager.getCompanies().size());
 
@@ -115,6 +119,8 @@ public class InvestorBDI extends PlayerBDI implements IInvestorService {
 		}
 		//if(companiesInvestOn >= )
 		//console.log("Number of companies: " + companiesInvestOn);
+		IExecutionFeature exe = ia.getComponentFeature(IExecutionFeature.class);
+		exe.waitForDelay(1000).get();
 	}
 
 	@AgentBody
