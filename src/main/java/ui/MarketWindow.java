@@ -53,19 +53,34 @@ public class MarketWindow extends JFrame {
 	public void draw() {
 		
 		JPanel container = new JPanel();
+		JPanel window = new JPanel();
+		
+		BorderLayout borderLayout = new BorderLayout();
 		
 		
-		setContentPane(container);
+		setContentPane(window);
+		
 
 		setSize(900, 600);
 		setPreferredSize(new Dimension(900, 600));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		window.setLayout(borderLayout);
+		
 
 		GridLayout mainGrid = new GridLayout(1, 2);
 		container.setLayout(mainGrid);
 
 		container.add(drawFluctuations());
 		container.add(drawManagers());
+		
+		JPanel header = new JPanel();
+		JLabel roundNumber = new JLabel("Round " + Integer.toString(market.getRound()));
+		roundNumber.setVerticalAlignment(JLabel.CENTER);
+		header.add(roundNumber);
+		
+		window.add(header, BorderLayout.PAGE_START);
+		window.add(container,BorderLayout.CENTER);
 
 		mainGrid.addLayoutComponent("something", new Label("yyyy"));
 		pack();

@@ -216,8 +216,15 @@ public class WallStreetAgent implements IWallStreetService {
 			exe.waitForDelay(100).get();
 		}
 		announceGameStateChange(gameState).get();
-		if(gameState == GameState.NEGOTIATION)
-			this.refreshUI();
+		if(gameState == GameState.NEGOTIATION) {
+			market.incRound();
+			
+		}
+		
+		this.refreshUI();
+		
+		
+		
 	}
 
 	void manageGame() {
