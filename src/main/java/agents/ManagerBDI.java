@@ -49,9 +49,7 @@ public class ManagerBDI extends PlayerBDI implements IManagerService {
 		super(PlayingMode.MANAGER);
 	}
 
-	@Belief(dynamic = true)
-	List<Company> myCompanies = self == null ? new ArrayList<>() : ((Manager) self).getCompanies();
-
+	
 	/*
 	 * @Belief int announcedCompanies = 0;
 	 * 
@@ -86,19 +84,25 @@ public class ManagerBDI extends PlayerBDI implements IManagerService {
 
 	}
 
+	
+	public List<Company> myCompanies(){
+		return self == null ? new ArrayList<>() : ((Manager) self).getCompanies();
+	}
+	
 	@Override
 	public IFuture<Boolean> investOn(Investor investor, Company company, int offer, boolean close) {
 		Future<Boolean> future = new Future<>();
-		int index = myCompanies.indexOf(company);
+		int index = myCompanies().indexOf(company);
 
-		if (index != -1 && offer > myCompanies.get(index).currentOffer) {
-			myCompanies.get(index).currentInvestor = investor;
-			myCompanies.get(index).currentOffer = offer;
+		if (index != -1 && offer > myCompanies().get(index).currentOffer) {
+			myCompanies().get(index).currentInvestor = investor;
+			myCompanies().get(index).currentOffer = offer;
 			console.log("invests on company " + company.id + " of " + self.getComponentIdentifier().getLocalName() + " "
 					+ offer);
-			wallStreet.informOffer((Manager) self, myCompanies.get(index));
+			wallStreet.informOffer((Manager) self, myCompanies().get(index));
 			future.setResult(true);
 		} else {
+			
 			future.setResult(false);
 		}
 		return future;
@@ -114,8 +118,8 @@ public class ManagerBDI extends PlayerBDI implements IManagerService {
 	public IFuture<List<Company>> consultWhatCompaniesToSell() {
 		Future<List<Company>> future = new Future<List<Company>>();
 		List<Company> companiesToSell = new ArrayList<>();
-		int nCompaniesToSell = Math.min(((Manager) self).companies.size(), Market.numberOfCompaniesRequiredToSell(self.balance));
-		System.out.println("N companies:" + ((Manager) self).companies.size());
+		int nCompaniesToSell = Math.min(myCompanies().size(), Market.numberOfCompaniesRequiredToSell(self.balance));
+		System.out.println("N companies:" + myCompanies().size());
 		for (int i = 0; i < nCompaniesToSell; i++) {
 			companiesToSell.add(((Manager) self).companies.get(i));
 		}

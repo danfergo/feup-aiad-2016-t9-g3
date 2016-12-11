@@ -74,12 +74,13 @@ public class InvestorBDI extends PlayerBDI implements IInvestorService {
 
 		@GoalContextCondition(beliefs = "gameState")
 		protected boolean mantain() {
+			System.out.println("-----------------------<<<<< " + investor.gameState);
 			return investor.gameState.equals(WallStreetAgent.GameState.NEGOTIATION);
 		}
 
 		@GoalTargetCondition(beliefs = "companiesInvestOn")
 		protected boolean target() {
-			return investor.companiesInvestOn == 2;
+			return investor.companiesInvestOn == 5;
 		}
 
 		@GoalCreationCondition(beliefs = { "gameState" })
@@ -93,13 +94,19 @@ public class InvestorBDI extends PlayerBDI implements IInvestorService {
 	@Plan(trigger = @Trigger(goals = InvestOnCompanies.class))
 	protected void invest() {
 		Manager manager = managers.get(randomGenerator.nextInt(managers.size()));
-		Company company = manager.getCompanies().get(randomGenerator.nextInt(manager.getCompanies().size()));
+		int companyIndex = randomGenerator.nextInt(manager.getCompanies().size());
+		System.out.println("trying to invest ..." + companyIndex);
+
+		Company company = manager.getCompanies().get(companyIndex);
+
 		IManagerService managerService = (IManagerService) SServiceProvider
 				.getService(ia, manager.getComponentIdentifier(), IManagerService.class).get();
 		Boolean sucessfullInvestment = managerService.investOn((Investor) self, company, 20, false).get();
 		if (sucessfullInvestment.equals(Boolean.TRUE)) {
 			companiesInvestOn++;
 			console.log("SUCCESS");
+		}else{
+			console.log("FAILED");
 		}
 		//if(companiesInvestOn >= )
 		//console.log("Number of companies: " + companiesInvestOn);
