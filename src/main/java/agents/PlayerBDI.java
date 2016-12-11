@@ -117,14 +117,14 @@ public abstract class PlayerBDI implements IPlayerService {
 		this.self = self;
 		this.otherPlayers = otherPlayers;
 		this.market = market;
-		console.log("knows (" + otherPlayers.size() + ") other players.");
+		//console.log("knows (" + otherPlayers.size() + ") other players.");
 		return Future.DONE;
 	}
 
 	@Override
 	public IFuture<Void> updateGameState(WallStreetAgent.GameState gameState) {
 		this.gameState = gameState;
-		console.log("ready to " + gameState);
+		//console.log("ready to " + gameState);
 		return Future.DONE;
 	}
 

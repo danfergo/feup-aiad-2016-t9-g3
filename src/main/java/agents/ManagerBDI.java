@@ -114,8 +114,9 @@ public class ManagerBDI extends PlayerBDI implements IManagerService {
 	public IFuture<List<Company>> consultWhatCompaniesToSell() {
 		Future<List<Company>> future = new Future<List<Company>>();
 		List<Company> companiesToSell = new ArrayList<>();
-		int nCompaniesToSell = Math.max(myCompanies.size(),
-				Market.numberOfCompaniesRequiredToSell(self.balance, myCompanies.size()));
+		int nCompaniesToSell = Math.min(((Manager)self).companies.size(),
+				Market.numberOfCompaniesRequiredToSell(self.balance, ((Manager)self).companies.size()));
+		System.out.println("N companies:" + ((Manager)self).companies.size());
 		for (int i = 0; i < nCompaniesToSell; i++) {
 			companiesToSell.add(myCompanies.get(i));
 		}
@@ -129,7 +130,7 @@ public class ManagerBDI extends PlayerBDI implements IManagerService {
 		float rnd = randomGenerator.nextInt(10);
 		if (rnd < 8) {
 			company.owner = (Manager) self;
-			company.currentOffer += 1;
+			company.currentOffer += 30;
 			future.setResult(company);
 		}else{
 			future.setResult(null);

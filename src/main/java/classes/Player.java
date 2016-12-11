@@ -10,14 +10,14 @@ public abstract class Player {
 	
 	public int balance = startBalance;
 	public IComponentIdentifier componentIdentifier = null;
-	
+	public boolean inGame = true;
 	
 	Player(IComponentIdentifier componentIdentifier){
 		this.componentIdentifier = componentIdentifier;
 	}
 	
 	
-	void setBalance(){
+	void setBalance(int balance){
 		this.balance = balance;
 	}
 	

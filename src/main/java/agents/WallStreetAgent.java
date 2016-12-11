@@ -105,7 +105,7 @@ public class WallStreetAgent implements IWallStreetService {
 	}
 
 	List<Manager> getInGameManagers() {
-		return players.stream().filter(p -> p instanceof Manager && p.balance >= 0).map(p -> (Manager) p)
+		return players.stream().filter(p -> p instanceof Manager && p.inGame).map(p -> (Manager) p)
 				.collect(Collectors.toList());
 	}
 
@@ -123,6 +123,9 @@ public class WallStreetAgent implements IWallStreetService {
 		Future<Void> all = new Future<Void>();
 		CounterResultListener<Void> allCounter = new CounterResultListener<>(players.size(),
 				new DelegationResultListener<Void>(all));
+
+		List<Player> players = new ArrayList<>(this.players);
+		Collections.shuffle(players);
 
 		for (Player player : players) {
 			ArrayList<Player> otherPlayers = new ArrayList<>(players);
@@ -142,6 +145,9 @@ public class WallStreetAgent implements IWallStreetService {
 		Future<Void> all = new Future<Void>();
 		CounterResultListener<Void> allCounter = new CounterResultListener<>(players.size(),
 				new DelegationResultListener<Void>(all));
+
+		List<Player> players = new ArrayList<>(this.players);
+		Collections.shuffle(players);
 
 		for (Player player : players) {
 			IPlayerService playerService = SServiceProvider
@@ -199,7 +205,6 @@ public class WallStreetAgent implements IWallStreetService {
 
 			if (players.size() == numberOfPlayers) {
 				manageGame();
-
 			}
 		} else {
 			ret.setResult(null);
@@ -216,16 +221,22 @@ public class WallStreetAgent implements IWallStreetService {
 			exe.waitForDelay(100).get();
 		}
 		announceGameStateChange(gameState).get();
-		this.refreshUI();
+		if (gameState == GameState.NEGOTIATION) {
+			this.refreshUI();
+		}
 	}
 
 	void manageGame() {
 		IExecutionFeature exe = ia.getComponentFeature(IExecutionFeature.class);
+		this.marketUI.storePlayersBalance(players);
+		exe.waitForDelay(100).get();
 
 		for (int i = 0; i < 5; i++) {
 
+			this.marketUI.storePlayersBalance(players);
+
 			changeTo(GameState.NEGOTIATION, true);
-			exe.waitForDelay(10000).get();
+			exe.waitForDelay(2000).get();
 
 			changeTo(GameState.EXCHANGING_INCOMES, false);
 
@@ -233,11 +244,13 @@ public class WallStreetAgent implements IWallStreetService {
 			applyInvestorsIncome();
 			applyManagersIncome();
 			applyManagmentCosts();
+			this.marketUI.storePlayersBalance(players);
 
 			changeTo(GameState.SOLVING_MANAGERS_DEBTS, true);
 
 			solveManagersDebts();
 
+			this.marketUI.storePlayersBalance(players);
 			changeTo(GameState.AUCTIONING_NEW_COMPANIES, true);
 
 			auctionNewCompanies();
@@ -287,7 +300,8 @@ public class WallStreetAgent implements IWallStreetService {
 	private void applyInvestorsIncome() {
 		for (Company company : getManagersCompanies()) {
 			if (company.currentInvestor != null) {
-				company.currentInvestor.balance += market.calcCompanyRevenue(company);
+				Player registeredPlayer = players.get(players.indexOf(company.currentInvestor));
+				registeredPlayer.balance += market.calcCompanyRevenue(company);
 			}
 		}
 
@@ -299,11 +313,14 @@ public class WallStreetAgent implements IWallStreetService {
 			Investor investor = investors.get(i);
 			ArrayList<Company> companies = fetchInvestorCompanies(investor);
 			int totalOffers = calcTotalOffers(companies);
+
 			if (investor.balance < totalOffers) {
 				int payment = totalOffers / companies.size();
 
 				for (Company company : companies) {
-					company.owner.balance += payment;
+					Player registeredOwner = players.get(players.indexOf(company.owner));
+
+					registeredOwner.balance += payment;
 					company.currentOffer = 0;
 					company.currentInvestor = null;
 					company.closed = false;
@@ -311,7 +328,9 @@ public class WallStreetAgent implements IWallStreetService {
 
 			} else {
 				for (Company company : companies) {
-					company.owner.balance += company.currentOffer;
+					Player registeredOwner = players.get(players.indexOf(company.owner));
+
+					registeredOwner.balance += company.currentOffer;
 					company.closed = false;
 				}
 			}
@@ -339,24 +358,23 @@ public class WallStreetAgent implements IWallStreetService {
 	}
 
 	private void applyManagmentCosts() {
-		for (Player player : players) {
-			if (player instanceof Manager) {
-				Manager manager = (Manager) player;
-				manager.balance -= manager.companies.size() * WallStreetAgent.companyFee;
-			}
+		for (Manager manager : getInGameManagers()) {
+			manager.balance -= manager.companies.size() * WallStreetAgent.companyFee;
 		}
 	}
 
 	private void solveManagersDebts() {
-		for (Player player : players) {
-			if (player instanceof Manager) {
-				Manager manager = (Manager) player;
-				if (manager.balance < 0 && manager.companies.size() < 0) {
-					IManagerService managerService = (IManagerService) SServiceProvider
-							.getService(ia, manager.getComponentIdentifier(), IManagerService.class).get();
-					List<Company> companies = managerService.consultWhatCompaniesToSell().get();
-					manager.companies.removeAll(companies);
-					deck.addCompanies(companies);
+		for (Manager manager : getInGameManagers()) {
+			if (manager.balance < 0) {
+				IManagerService managerService = (IManagerService) SServiceProvider
+						.getService(ia, manager.getComponentIdentifier(), IManagerService.class).get();
+				List<Company> companies = managerService.consultWhatCompaniesToSell().get();
+				System.out.println("SOLD " + companies.size());
+				manager.companies.removeAll(companies);
+				deck.addCompanies(companies);
+				manager.balance += valueOfCompany*companies.size();
+				if(manager.balance < 0){
+					manager.inGame = false;
 				}
 			}
 		}

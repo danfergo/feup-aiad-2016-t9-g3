@@ -16,10 +16,12 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import org.jfree.chart.ChartFactory;
@@ -32,6 +34,7 @@ import classes.Deck;
 import classes.Manager;
 import classes.Market;
 import classes.Market.Fluctuation;
+import classes.Player;
 
 public class MarketWindow extends JFrame {
 
@@ -48,23 +51,31 @@ public class MarketWindow extends JFrame {
 
 	Market market;
 	List<Manager> managers;
+	PlayerBalanceChart playerBalanceChart;
 
+
+	
 	public MarketWindow(Market market, List<Manager> managers) {
 		super("Panic On Wall Street!");
 		this.market = market;
 		this.managers = managers;
+		this.playerBalanceChart = new PlayerBalanceChart();
+		
+		setSize(900, 600);
+		setPreferredSize(new Dimension(900, 600));
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		//setExtendedState(JFrame.MAXIMIZED_BOTH);
+		setVisible(true);
 	}
 
 	public void draw() {
 
+		// JScrollPane scrPane = new JScrollPane(container);
+
+
 		JPanel container = new JPanel();
-		JScrollPane scrPane = new JScrollPane(container);
-
-		setContentPane(scrPane);
-
-		setSize(900, 600);
-		setPreferredSize(new Dimension(900, 600));
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setContentPane(container);
 
 		GridLayout mainGrid = new GridLayout(2, 2);
 		container.setLayout(mainGrid);
@@ -73,36 +84,33 @@ public class MarketWindow extends JFrame {
 		container.add(drawManagers());
 		container.add(drawChart());
 
-		mainGrid.addLayoutComponent("something", new Label("yyyy"));
+		//mainGrid.addLayoutComponent("something", new Label("yyyy"));
 		pack();
-		setVisible(true);
+
 	}
 
-	JPanel drawChart() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BorderLayout());
+	JTabbedPane drawChart() {
+		JTabbedPane tabbedPane = new JTabbedPane();
+		
+		JPanel panel1 = new JPanel();
+		panel1.setLayout(new BorderLayout());
+		ChartPanel CP = new ChartPanel(playerBalanceChart.get());
+		panel1.add(CP, BorderLayout.CENTER);
+		tabbedPane.addTab("Players", null, panel1);
 
-		DefaultPieDataset dataset = new DefaultPieDataset();
-		dataset.setValue("IPhone 5s", new Double(20));
-		dataset.setValue("SamSung Grand", new Double(20));
-		dataset.setValue("MotoG", new Double(40));
-		dataset.setValue("Nokia Lumia", new Double(10));
+		JComponent panel2 = new JPanel();
+		tabbedPane.addTab("Managers", null, panel2);
 
-		JFreeChart chart = ChartFactory.createPieChart("Mobile Sales", // chart
-																		// title
-				dataset, // data
-				true, // include legend
-				true, false);
+		JComponent panel3 = new JPanel();
+		tabbedPane.addTab("Investors", null, panel3);
 
-		ChartPanel CP = new ChartPanel(chart);
-		panel.add(CP, BorderLayout.CENTER);
 
-		return panel;
+		return tabbedPane;
 
 	}
 
 	JPanel drawFluctuations() {
-		JPanel panel = new JPanel(new GridLayout(market.fluctuations.size(), 1));
+		JPanel panel = new JPanel(new GridLayout(market.fluctuations.size(), 1, 0, 0));
 		panel.setMaximumSize(new Dimension(450, 600));
 		panel.setBorder(BorderFactory.createLineBorder(Color.black));
 
@@ -126,14 +134,33 @@ public class MarketWindow extends JFrame {
 	}
 
 	JPanel drawFluctuationDiceCell(Fluctuation fluctuation) {
-		JPanel fcPanel = new JPanel(new GridBagLayout());
+		JPanel fcPanel = new JPanel(new GridLayout(2, (int) Math.ceil(fluctuation.dice.length), 0, 0));
+		fcPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+
 		fcPanel.setBackground(null);
-		if (fluctuation.currentDiceIndex >= 0) {
-			JLabel label = new JLabel(Integer.toString(fluctuation.dice[fluctuation.currentDiceIndex]));
+		for (int i = 0; i < fluctuation.dice.length; i++) {
+			JPanel wrapper = new JPanel(new GridBagLayout());
+			wrapper.setBorder(BorderFactory.createLineBorder(Color.black));
+
+			JLabel label = new JLabel(Integer.toString(fluctuation.dice[i]));
 			label.setVerticalAlignment(JLabel.CENTER);
-			label.setFont(label.getFont().deriveFont(18.0f));
-			fcPanel.add(label);
+			label.setFont(label.getFont().deriveFont(16.0f));
+			wrapper.setBackground(Color.WHITE);
+			if (fluctuation.currentDiceIndex == i) {
+				wrapper.setBackground(Color.BLACK);
+				label.setForeground(Color.WHITE);
+			}
+			wrapper.add(label);
+			fcPanel.add(wrapper);
 		}
+
+		/*
+		 * if (fluctuation.currentDiceIndex >= 0) { JLabel label = new
+		 * JLabel(Integer.toString(fluctuation.dice[fluctuation.currentDiceIndex
+		 * ])); label.setVerticalAlignment(JLabel.CENTER);
+		 * label.setFont(label.getFont().deriveFont(18.0f)); fcPanel.add(label);
+		 * }
+		 */
 		return fcPanel;
 	}
 
@@ -156,8 +183,9 @@ public class MarketWindow extends JFrame {
 		return fcPanel;
 	}
 
-	JPanel drawManagers() {
+	JScrollPane drawManagers() {
 		JPanel panel = new JPanel();
+		JScrollPane scrPane = new JScrollPane(panel);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setBorder(BorderFactory.createLineBorder(Color.black));
 
@@ -165,7 +193,7 @@ public class MarketWindow extends JFrame {
 			panel.add(drawCompanies(manager));
 		}
 
-		return panel;
+		return scrPane;
 	}
 
 	JPanel drawCompanies(Manager manager) {
@@ -182,7 +210,7 @@ public class MarketWindow extends JFrame {
 
 	JPanel drawCompany(Company company) {
 		JPanel panel = new JPanel(new GridLayout(2, 2));
-		panel.setMaximumSize(new Dimension(150, 200));
+		panel.setMaximumSize(new Dimension(200, 250));
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		JPanel img = new JPanel(new GridLayout(2, 1));
@@ -217,7 +245,7 @@ public class MarketWindow extends JFrame {
 		status.setBackground(Color.WHITE);
 		if (company.currentInvestor != null) {
 			JLabel sLabel = new JLabel(company.currentInvestor.getComponentIdentifier().getLocalName());
-			sLabel.setFont(sLabel.getFont().deriveFont(18.0f));
+			sLabel.setFont(sLabel.getFont().deriveFont(14.0f));
 			status.add(sLabel);
 		}
 
@@ -261,6 +289,10 @@ public class MarketWindow extends JFrame {
 	 */
 	public void setManagers(List<Manager> managers) {
 		this.managers = managers;
+	}
+
+	public void storePlayersBalance(List<Player> players) {
+		this.playerBalanceChart.storeData(players);
 	}
 
 }

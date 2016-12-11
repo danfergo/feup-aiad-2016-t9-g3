@@ -96,7 +96,7 @@ public class InvestorBDI extends PlayerBDI implements IInvestorService {
 		Company company = manager.getCompanies().get(randomGenerator.nextInt(manager.getCompanies().size()));
 		IManagerService managerService = (IManagerService) SServiceProvider
 				.getService(ia, manager.getComponentIdentifier(), IManagerService.class).get();
-		Boolean sucessfullInvestment = managerService.investOn((Investor) self, company, 10, false).get();
+		Boolean sucessfullInvestment = managerService.investOn((Investor) self, company, 20, false).get();
 		if (sucessfullInvestment.equals(Boolean.TRUE)) {
 			companiesInvestOn++;
 			console.log("SUCCESS");
