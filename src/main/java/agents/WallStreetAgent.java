@@ -222,19 +222,23 @@ public class WallStreetAgent implements IWallStreetService {
 
 	void changeTo(WallStreetAgent.GameState gameState, boolean sync) {
 		IExecutionFeature exe = ia.getComponentFeature(IExecutionFeature.class);
-
+		if(gameState == GameState.NEGOTIATION) {
+			market.incRound();
+			
+		}
+		if(gameState == GameState.NEGOTIATION || gameState == GameState.AUCTIONING_NEW_COMPANIES) {
+			this.refreshUI();
+			
+		}
 		if (sync) {
 			syncGameInformation().get();
 			exe.waitForDelay(100).get();
 		}
 		announceGameStateChange(gameState).get();
 
-		if(gameState == GameState.NEGOTIATION) {
-			market.incRound();
-			
-		}
 		
-		this.refreshUI();
+		
+		
 	}
 
 	void manageGame() {
@@ -247,7 +251,7 @@ public class WallStreetAgent implements IWallStreetService {
 			this.marketUI.storePlayersBalance(players);
 
 			changeTo(GameState.NEGOTIATION, true);
-			exe.waitForDelay(2000).get();
+			exe.waitForDelay(3000).get();
 
 			changeTo(GameState.EXCHANGING_INCOMES, false);
 
@@ -265,6 +269,7 @@ public class WallStreetAgent implements IWallStreetService {
 			changeTo(GameState.AUCTIONING_NEW_COMPANIES, true);
 
 			auctionNewCompanies();
+			exe.waitForDelay(3000).get();
 		}
 		return;
 	}

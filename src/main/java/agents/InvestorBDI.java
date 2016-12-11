@@ -90,6 +90,7 @@ public class InvestorBDI extends PlayerBDI implements IInvestorService {
 		}
 
 	}
+	
 
 	@Plan(trigger = @Trigger(goals = InvestOnCompanies.class))
 	protected void invest() {
