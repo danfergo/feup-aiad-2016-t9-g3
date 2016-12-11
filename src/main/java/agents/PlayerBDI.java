@@ -87,6 +87,13 @@ public abstract class PlayerBDI implements IPlayerService {
 
 	@Belief
 	protected Player self;
+	
+	@Belief
+	protected int selfBalance;
+
+	public int getSelfBalance() {
+		return selfBalance;
+	}
 
 	@Belief
 	protected WallStreetAgent.GameState gameState = WallStreetAgent.GameState.ESTABLISHING_GAME;
@@ -109,6 +116,7 @@ public abstract class PlayerBDI implements IPlayerService {
 		if (player != null) {
 			this.wallStreet = wallStreet;
 			this.self = player;
+			this.selfBalance = this.self.balance;
 			return;
 		}
 
@@ -124,8 +132,13 @@ public abstract class PlayerBDI implements IPlayerService {
 		this.self = self;
 		this.otherPlayers = otherPlayers;
 		this.market = market;
+		this.selfBalance = this.self.balance;
 		//console.log("knows (" + otherPlayers.size() + ") other players.");
 		return Future.DONE;
+	}
+
+	public Player getSelf() {
+		return self;
 	}
 
 	@Override

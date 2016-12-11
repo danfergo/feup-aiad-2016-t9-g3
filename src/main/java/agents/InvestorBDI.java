@@ -78,9 +78,9 @@ public class InvestorBDI extends PlayerBDI implements IInvestorService {
 			return investor.gameState.equals(WallStreetAgent.GameState.NEGOTIATION);
 		}
 
-		@GoalTargetCondition(beliefs = "companiesInvestOn")
+		@GoalTargetCondition(beliefs = "selfBalance")
 		protected boolean target() {
-			return investor.companiesInvestOn == 5;
+			return investor.getSelfBalance() < 50;
 		}
 
 		@GoalCreationCondition(beliefs = { "gameState" })
