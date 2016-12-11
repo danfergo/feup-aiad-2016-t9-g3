@@ -65,7 +65,7 @@ public class MarketWindow extends JFrame {
 		setPreferredSize(new Dimension(900, 600));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		//setExtendedState(JFrame.MAXIMIZED_BOTH);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
 	}
 
@@ -103,6 +103,8 @@ public class MarketWindow extends JFrame {
 
 		//mainGrid.addLayoutComponent("something", new Label("yyyy"));
 		pack();
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		setVisible(true);
 
 	}
 

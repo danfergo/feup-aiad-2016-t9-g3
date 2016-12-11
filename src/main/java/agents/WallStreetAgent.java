@@ -13,6 +13,8 @@ import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentFeature;
+import jadex.micro.annotation.Argument;
+import jadex.micro.annotation.Arguments;
 import jadex.micro.annotation.Binding;
 import jadex.micro.annotation.Description;
 import jadex.micro.annotation.ProvidedService;
@@ -33,6 +35,7 @@ import jadex.bdiv3.features.IBDIAgentFeature;
 import jadex.bdiv3.runtime.ChangeEvent;
 import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IComponentStep;
+import jadex.bridge.IExternalAccess;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.component.IExecutionFeature;
 import jadex.bridge.service.RequiredServiceInfo;
@@ -58,7 +61,9 @@ import classes.Player;
 @Service
 @ProvidedServices({ @ProvidedService(type = IWallStreetService.class) })
 @RequiredServices(@RequiredService(name = "clockservice", type = IClockService.class, binding = @Binding(scope = RequiredServiceInfo.SCOPE_PLATFORM)))
-
+@Arguments({
+	@Argument(name="numP", clazz=Integer.class, defaultvalue="11")
+})
 public class WallStreetAgent implements IWallStreetService {
 	@IncludeFields
 	public static enum PlayingMode {
@@ -70,7 +75,7 @@ public class WallStreetAgent implements IWallStreetService {
 		ESTABLISHING_GAME, NEGOTIATION, EXCHANGING_INCOMES, SOLVING_MANAGERS_DEBTS, AUCTIONING_NEW_COMPANIES, GAME_ENDED
 	}
 
-	private static int numberOfPlayers = 11;
+	private int numberOfPlayers;
 	public static int companyFee = 10;
 	public static int valueOfCompany = 5;
 
@@ -92,8 +97,10 @@ public class WallStreetAgent implements IWallStreetService {
 	protected Console console;
 	protected MarketWindow marketUI;
 
+
 	@AgentBody
 	void init() {
+		this.numberOfPlayers = (Integer)ia.getArgument("numP");
 		this.console = new Console(ia.getComponentIdentifier());
 		this.marketUI = new MarketWindow(market, getManagers());
 		marketUI.draw();
