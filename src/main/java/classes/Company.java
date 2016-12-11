@@ -14,11 +14,13 @@ public class Company {
 	public Investor currentInvestor;
 	public boolean closed;
 	public Manager owner;
+	public String name;
 	
-	Company(Market.Color color, boolean x2, int id){
+	Company(Market.Color color, boolean x2, int id,String name){
 		this.color = color;
 		this.x2 = x2;
 		this.id = id;
+		this.name = name;
 	}
 	
 	@Override

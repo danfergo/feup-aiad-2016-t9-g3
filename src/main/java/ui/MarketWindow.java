@@ -19,6 +19,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import classes.Company;
@@ -50,18 +51,23 @@ public class MarketWindow extends JFrame {
 	}
 
 	public void draw() {
-		setContentPane(new JPanel());
+		
+		JPanel container = new JPanel();
+		JScrollPane scrPane = new JScrollPane(container);
+		
+		setContentPane(scrPane);
 
 		setSize(900, 600);
 		setPreferredSize(new Dimension(900, 600));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		GridLayout mainGrid = new GridLayout(2, 2);
-		getContentPane().setLayout(mainGrid);
+		container.setLayout(mainGrid);
+		
+		container.add(drawFluctuations());
+		container.add(drawManagers());
+		container.add(drawChart());
 
-		getContentPane().add(drawFluctuations());
-		getContentPane().add(drawManagers());
-		getContentPane().add(drawChart());
 
 		mainGrid.addLayoutComponent("something", new Label("yyyy"));
 		pack();
@@ -77,6 +83,7 @@ public class MarketWindow extends JFrame {
 	
 	JPanel drawFluctuations() {
 		JPanel panel = new JPanel(new GridLayout(market.fluctuations.size(), 1));
+		panel.setMaximumSize(new Dimension(450, 600));
 		panel.setBorder(BorderFactory.createLineBorder(Color.black));
 
 		for (Market.Color color : market.fluctuations.keySet()) {
@@ -154,19 +161,26 @@ public class MarketWindow extends JFrame {
 
 	JPanel drawCompany(Company company) {
 		JPanel panel = new JPanel(new GridLayout(2, 2));
-		panel.setMaximumSize(new Dimension(300, 200));
+		panel.setMaximumSize(new Dimension(150, 200));
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		JPanel img = new JPanel();
+		JPanel img = new JPanel(new GridLayout(2, 1));
+		img.setMaximumSize(new Dimension(75, 100));
 
 		img.setBackground(ColorMap.get(company.color));
 		if (company.owner != null && company.owner.getComponentIdentifier() != null) {
-			JLabel oLabel = new JLabel(company.owner.getComponentIdentifier().getLocalName());
-			img.add(oLabel);
+		
+			JLabel oLabel1 = new JLabel(company.name); 
+			JLabel oLabel2 = new JLabel(company.owner.getComponentIdentifier().getLocalName());
+			//oLabel1.setFont(oLabel1.getFont().deriveFont(18.0f));
+			img.add(oLabel1);
+			img.add(oLabel2);
 		}
 		panel.add(img);
 
 		JPanel x2 = new JPanel();
+		x2.setMaximumSize(new Dimension(75, 100));
+		
 		x2.setBackground(ColorMap.get(company.color));
 		if (company.x2) {
 			JLabel x2Label = new JLabel("X2");
@@ -177,6 +191,7 @@ public class MarketWindow extends JFrame {
 		panel.add(x2);
 
 		JPanel status = new JPanel();
+		status.setMaximumSize(new Dimension(75, 100));
 		status.setLayout(new BoxLayout(status, BoxLayout.PAGE_AXIS));
 		status.setBackground(Color.WHITE);
 		if (company.currentInvestor != null) {
@@ -193,6 +208,7 @@ public class MarketWindow extends JFrame {
 		panel.add(status);
 
 		JPanel value = new JPanel();
+		value.setMaximumSize(new Dimension(75, 100));
 		value.setBackground(Color.WHITE);
 		if (company.currentInvestor != null) {
 			JLabel vLabel = new JLabel(Integer.toString(company.currentOffer));
