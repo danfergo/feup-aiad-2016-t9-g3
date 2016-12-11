@@ -1,9 +1,6 @@
 package ui;
 
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
-import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
@@ -14,11 +11,7 @@ import javax.swing.JComboBox;
 import javax.swing.JButton;
 import java.awt.GridLayout;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.LineBorder;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -26,20 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.awt.event.ActionEvent;
-//import com.jgoodies.forms.layout.FormLayout;
-//import com.jgoodies.forms.layout.ColumnSpec;
-//import com.jgoodies.forms.layout.RowSpec;
-//import com.jgoodies.forms.layout.FormSpecs;
-import javax.swing.BoxLayout;
-import java.awt.Component;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import javax.swing.JScrollPane;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import java.awt.FlowLayout;
 
 public class StartScreen extends JFrame implements ActionListener{
 
@@ -80,10 +59,10 @@ public class StartScreen extends JFrame implements ActionListener{
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		StartScreen window = new StartScreen();
 		window.draw();
-	}
+	}*/
 
 
 	public StartScreen() {

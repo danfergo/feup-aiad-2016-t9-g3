@@ -5,6 +5,7 @@ import jadex.base.Starter;
 import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IExternalAccess;
 import jadex.bridge.service.search.SServiceProvider;
+import jadex.bridge.service.types.cms.CreationInfo;
 import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.future.IFuture;
 import jadex.commons.future.ITuple2Future;
@@ -43,16 +44,26 @@ public class Game {
 		
 		
 		// Add WallStreet
-		cms.createComponent("WallStreet", "agents.WallStreetAgent.class", null).getFirstResult();
+		Map<String, Object> agentArgs = new HashMap<String, Object>();
+	    agentArgs.put("numP", numplayers);
+	    CreationInfo cInfo = new CreationInfo(agentArgs);
+	    
+		cms.createComponent("WallStreet", "agents.WallStreetAgent.class", cInfo).getFirstResult();
+		
 		// Add Managers
-		for (Entry<String, Integer> manager : managers.entrySet()) {		
-			cms.createComponent(manager.getKey(), "agents.ManagerBDI.class", null).getFirstResult();
+		for (Entry<String, Integer> manager : managers.entrySet()) {
+			Map<String, Object> agentArgs1 = new HashMap<String, Object>();
+			agentArgs1.put("type", manager.getValue());
+		    CreationInfo cInfo1 = new CreationInfo(agentArgs1);
+			cms.createComponent(manager.getKey(), "agents.ManagerBDI.class", cInfo1).getFirstResult();
 			
 		}
 		// Add Investors
 		for (Entry<String, Integer> investor : investors.entrySet()) {
-			
-			cms.createComponent(investor.getKey(), "agents.InvestorBDI.class", null).getFirstResult();
+			Map<String, Object> agentArgs1 = new HashMap<String, Object>();
+			agentArgs1.put("type", investor.getValue());
+		    CreationInfo cInfo1 = new CreationInfo(agentArgs1);
+			cms.createComponent(investor.getKey(), "agents.InvestorBDI.class", cInfo1).getFirstResult();
 			
 		}
 		

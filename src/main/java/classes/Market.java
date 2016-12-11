@@ -70,13 +70,13 @@ public class Market {
 				new Fluctuation(new int[] { 20, 20, 20, 30, 30, 30, 40, 40 }, new int[] { -1, -1, 0, 0, +1, +1 }));
 
 		fluctuations.put(Color.Green,
-				new Fluctuation(new int[] { 20, 20, 20, 30, 30, 30, 40, 40 }, new int[] { -1, -1, 0, 0, +1, +1 }));
+				new Fluctuation(new int[] { 0, 10, 20, 30, 30, 40, 50, 60 }, new int[] { -2, -1, 0, 0, +1, +2 }));
 
 		fluctuations.put(Color.Yellow,
-				new Fluctuation(new int[] { 20, 20, 20, 30, 30, 30, 40, 40 }, new int[] { -1, -1, 0, 0, +1, +1 }));
+				new Fluctuation(new int[] { -10, 0, 0, 30, 40, 40, 60, 60 }, new int[] { -3, -2, -1, +1, +2, +3 }));
 
 		fluctuations.put(Color.Red,
-				new Fluctuation(new int[] { 20, 20, 20, 30, 30, 30, 40, 40 }, new int[] { -1, -1, 0, 0, +1, +1 }));
+				new Fluctuation(new int[] { -20, -10, 0, 30, 40, 50, 60, 70 }, new int[] { -7, -3, -2, +2, +3, +7 }));
 
 	}
 

@@ -28,6 +28,8 @@ import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentFeature;
+import jadex.micro.annotation.Argument;
+import jadex.micro.annotation.Arguments;
 import jadex.micro.annotation.ProvidedService;
 import jadex.micro.annotation.ProvidedServices;
 import services.IManagerService;
@@ -39,6 +41,9 @@ import jadex.bdiv3.annotation.Trigger;
 @Agent
 @Service
 @ProvidedServices({ @ProvidedService(type = IPlayerService.class) })
+@Arguments({
+	@Argument(name="type", clazz=Integer.class, defaultvalue="11")
+})
 public abstract class PlayerBDI implements IPlayerService {
 
 	@Agent
@@ -50,6 +55,8 @@ public abstract class PlayerBDI implements IPlayerService {
 	protected Console console;
 
 	private PlayingMode playingAs;
+	
+	protected int type;
 
 	public PlayingMode getPlayingAs() {
 		return playingAs;
@@ -94,7 +101,7 @@ public abstract class PlayerBDI implements IPlayerService {
 		//Connect connect = (Connect) bdiFeature.dispatchTopLevelGoal(new Connect()).get();
 		// this.wallStreet = connect.wallStreet;
 		// this.self = connect.player;
-		
+		this.type  = (Integer)ia.getArgument("type");
 		
 		IWallStreetService wallStreet = (IWallStreetService) SServiceProvider
 				.getService(ia.getExternalAccess(), IWallStreetService.class, RequiredServiceInfo.SCOPE_PLATFORM).get();
