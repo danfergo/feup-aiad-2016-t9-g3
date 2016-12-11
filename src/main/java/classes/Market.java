@@ -98,8 +98,8 @@ public class Market {
 	 * @param nCompanies
 	 * @return
 	 */
-	public static int numberOfCompaniesRequiredToSell(int balance, int nCompanies) {
-		return (int) Math.ceil(balance / (double) WallStreetAgent.valueOfCompany);
+	public static int numberOfCompaniesRequiredToSell(int balance) {
+		return -1 * (int) Math.ceil(balance / (double) WallStreetAgent.valueOfCompany);
 	}
 	
 	/**
