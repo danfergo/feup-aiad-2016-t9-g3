@@ -33,19 +33,21 @@ import jadex.micro.annotation.ProvidedServices;
 import services.IManagerService;
 import services.IPlayerService;
 import services.IWallStreetService;
+import util.Console;
 import jadex.bdiv3.annotation.Trigger;
-
 
 @Agent
 @Service
 @ProvidedServices({ @ProvidedService(type = IPlayerService.class) })
 public abstract class PlayerBDI implements IPlayerService {
-	
+
 	@Agent
-	protected IInternalAccess agent;
-	
+	protected IInternalAccess ia;
+
 	@AgentFeature
 	protected IBDIAgentFeature bdiFeature;
+
+	protected Console console;
 
 	private PlayingMode playingAs;
 
@@ -53,90 +55,77 @@ public abstract class PlayerBDI implements IPlayerService {
 		return playingAs;
 	}
 
-
 	protected static Random randomGenerator = new Random();
-	
-	public PlayerBDI(PlayingMode playingAs){
+
+	public PlayerBDI(PlayingMode playingAs) {
 		this.playingAs = playingAs;
+		this.console = new Console(ia.getComponentIdentifier());
 	}
 
-
-	
 	@Goal
 	public class Connect {
-		
+
 		IWallStreetService wallStreet;
 		Player player;
 
 	}
-		
-	@Plan(trigger=@Trigger(goals=Connect.class))
-	public void connectToWallStreet(Connect goal){
-		ArrayList<IWallStreetService> wallStreets = (ArrayList<IWallStreetService>)SServiceProvider.getServices(agent.getExternalAccess(), IWallStreetService.class, RequiredServiceInfo.SCOPE_PLATFORM).get();
-		for(IWallStreetService wallStreet : wallStreets){
-			Player player = (Player)wallStreet.join(agent.getComponentIdentifier(), playingAs).get();
-			if(player != null){
-				goal.wallStreet = wallStreet;
-				goal.player = player;
-			}
-		}
-		 
-		//TODO throw exception
+
+	@Plan(trigger = @Trigger(goals = Connect.class))
+	public void connectToWallStreet(Connect goal) {
+
 	}
 
-	
 	@Belief
 	IWallStreetService wallStreet;
-	
+
 	@Belief
 	protected Player self;
-	
+
 	@Belief
 	protected WallStreetAgent.GameState gameState = WallStreetAgent.GameState.ESTABLISHING_GAME;
-	
+
 	@Belief
-    protected List<Player> otherPlayers = new ArrayList<>();
+	protected List<Player> otherPlayers = new ArrayList<>();
 
 	private Market market;
-	
-	
-	
-	
+
 	@AgentBody
 	public void body() {
-		Connect connect = (Connect)bdiFeature.dispatchTopLevelGoal(new Connect()).get();
-		this.wallStreet = connect.wallStreet;
-		this.self = connect.player;
+		//Connect connect = (Connect) bdiFeature.dispatchTopLevelGoal(new Connect()).get();
+		// this.wallStreet = connect.wallStreet;
+		// this.self = connect.player;
+		
+		
+		IWallStreetService wallStreet = (IWallStreetService) SServiceProvider
+				.getService(ia.getExternalAccess(), IWallStreetService.class, RequiredServiceInfo.SCOPE_PLATFORM).get();
+		Player player = (Player) wallStreet.join(ia.getComponentIdentifier(), playingAs).get();
+		if (player != null) {
+			this.wallStreet = wallStreet;
+			this.self = player;
+			return;
+		}
+
+		// TODO throw exception
+
 	}
-	
-	
-	
-	
-	
-	
-	
+
 	/**
-	 * IPlayerService implementation  BEGIN
+	 * IPlayerService implementation BEGIN
 	 */
 	@Override
 	public IFuture<Void> syncGameInformation(Player self, List<Player> otherPlayers, Market market) {
 		this.self = self;
 		this.otherPlayers = otherPlayers;
 		this.market = market;
-		System.out.println("(" + self.getComponentIdentifier().getLocalName()+ ") knows (" + otherPlayers.size()+ ") other players.");
+		console.log("knows (" + otherPlayers.size() + ") other players.");
 		return Future.DONE;
 	}
-
-
 
 	@Override
 	public IFuture<Void> updateGameState(WallStreetAgent.GameState gameState) {
 		this.gameState = gameState;
-		System.out.println("(" + self.getComponentIdentifier().getLocalName()+ ") ready to " + gameState);
+		console.log("ready to " + gameState);
 		return Future.DONE;
 	}
-
-
-
 
 }

@@ -3,7 +3,11 @@ package classes;
 import java.util.ArrayList;
 
 import jadex.bridge.IComponentIdentifier;
+import jadex.bridge.IInternalAccess;
+import jadex.bridge.service.search.SServiceProvider;
 import jadex.commons.transformation.annotations.IncludeFields;
+import services.IManagerService;
+import services.IPlayerService;
 
 @IncludeFields
 public class Manager extends Player{
@@ -30,5 +34,8 @@ public class Manager extends Player{
 		companies.add(company);
 	}
 	
+	public IManagerService getManagerService(IInternalAccess ia){
+		return SServiceProvider.getService(ia, this.componentIdentifier, IManagerService.class).get();
+	}
 	
 }

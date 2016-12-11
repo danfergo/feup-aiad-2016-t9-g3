@@ -11,6 +11,7 @@ import java.awt.font.TextAttribute;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -26,7 +27,7 @@ import classes.Manager;
 import classes.Market;
 import classes.Market.Fluctuation;
 
-public class Window extends JFrame {
+public class MarketWindow extends JFrame {
 
 	static Map<Market.Color, Color> ColorMap = new HashMap<>();
 	static {
@@ -40,15 +41,15 @@ public class Window extends JFrame {
 	}
 
 	Market market;
-	ArrayList<Manager> managers;
+	List<Manager> managers;
 
-	Window(Market market, ArrayList<Manager> managers) {
+	public MarketWindow(Market market, List<Manager> managers) {
 		super("Panic On Wall Street!");
 		this.market = market;
 		this.managers = managers;
 	}
 
-	void draw() {
+	public void draw() {
 		setContentPane(new JPanel());
 
 		setSize(900, 600);
@@ -206,13 +207,17 @@ public class Window extends JFrame {
 		managers.add(new Manager(null, deck.fetchCompanies(4)));
 		managers.add(new Manager(null, deck.fetchCompanies(1)));
 
-		Window window = new Window(market, managers);
+		MarketWindow window = new MarketWindow(market, managers);
 		window.draw();
 		Thread.sleep(1000);
 
 		market.rollTheDices();
 		window.draw();
 
+	}
+
+	public void setManagers(List<Manager> managers) {
+		this.managers = managers;
 	}
 
 }

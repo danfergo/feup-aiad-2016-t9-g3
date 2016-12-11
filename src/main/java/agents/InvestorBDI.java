@@ -10,6 +10,7 @@ import classes.Manager;
 import classes.Player;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Goal;
+import jadex.bdiv3.annotation.GoalContextCondition;
 import jadex.bdiv3.annotation.GoalCreationCondition;
 import jadex.bdiv3.annotation.GoalMaintainCondition;
 import jadex.bdiv3.annotation.GoalParameter;
@@ -43,78 +44,71 @@ public class InvestorBDI extends PlayerBDI implements IInvestorService {
 		super(PlayingMode.INVESTOR);
 	}
 
-	@Belief(dynamic=true)
+	@Belief(dynamic = true)
 	WallStreetAgent.GameState anotherGameState = gameState;
-	
+
 	@Belief
 	int companiesInvestOn = 0;
-	
-	
-	private static List<Manager> filterManagers(List<Player> players){
+
+	private static List<Manager> filterManagers(List<Player> players) {
 		List<Manager> investors = new ArrayList<>();
-		for(Player p : players){
-			if(p instanceof Manager){
-				investors.add((Manager)p);
+		for (Player p : players) {
+			if (p instanceof Manager) {
+				investors.add((Manager) p);
 			}
 		}
 		return investors;
 	}
-	
-	@Belief(dynamic=true)
+
+	@Belief(dynamic = true)
 	List<Manager> managers = filterManagers(otherPlayers);
 
-	@Goal(excludemode=ExcludeMode.Never)
+	@Goal(excludemode = ExcludeMode.Never)
 	public static class InvestOnCompanies {
 
 		public InvestorBDI investor;
 
-		
-		InvestOnCompanies(InvestorBDI investor){
+		InvestOnCompanies(InvestorBDI investor) {
 			this.investor = investor;
 		}
 
-		@GoalMaintainCondition(beliefs = "gameState")
-		protected boolean mantain(){
-			return !investor.gameState.equals(WallStreetAgent.GameState.NEGOTIATION);
+		@GoalContextCondition(beliefs = "gameState")
+		protected boolean mantain() {
+			return investor.gameState.equals(WallStreetAgent.GameState.NEGOTIATION);
 		}
-		
+
 		@GoalTargetCondition(beliefs = "companiesInvestOn")
 		protected boolean target() {
 			return investor.companiesInvestOn == 2;
 		}
 
-		@GoalCreationCondition(beliefs={"gameState"})
-		public static InvestOnCompanies launch(InvestorBDI  investor)
-		{
-			return investor.gameState.equals(WallStreetAgent.GameState.NEGOTIATION) ? new InvestOnCompanies(investor) : null;	
+		@GoalCreationCondition(beliefs = { "gameState" })
+		public static InvestOnCompanies launch(InvestorBDI investor) {
+			return investor.gameState.equals(WallStreetAgent.GameState.NEGOTIATION) ? new InvestOnCompanies(investor)
+					: null;
 		}
-		
+
 	}
 
-	
-
-	
-	
-	@Plan(trigger=@Trigger(goals=InvestOnCompanies.class)) 
-	protected void invest(){
-		System.out.println("++;" + gameState.equals(WallStreetAgent.GameState.NEGOTIATION));
-		
+	@Plan(trigger = @Trigger(goals = InvestOnCompanies.class))
+	protected void invest() {
 		Manager manager = managers.get(randomGenerator.nextInt(managers.size()));
 		Company company = manager.getCompanies().get(randomGenerator.nextInt(manager.getCompanies().size()));
-		IManagerService managerService = (IManagerService)SServiceProvider.getService(agent, manager.getComponentIdentifier(), IManagerService.class).get();
-		Boolean sucessfullInvestment = managerService.investOn((Investor)self, company, 100, false).get();
-		if(sucessfullInvestment.equals(Boolean.TRUE)){
+		IManagerService managerService = (IManagerService) SServiceProvider
+				.getService(ia, manager.getComponentIdentifier(), IManagerService.class).get();
+		Boolean sucessfullInvestment = managerService.investOn((Investor) self, company, 10, false).get();
+		if (sucessfullInvestment.equals(Boolean.TRUE)) {
 			companiesInvestOn++;
+			console.log("SUCCESS");
 		}
-		System.out.println("companies: " + companiesInvestOn);
+		//if(companiesInvestOn >= )
+		//console.log("Number of companies: " + companiesInvestOn);
 	}
-	
-	
-	
+
 	@AgentBody
 	public void body() {
 		super.body();
-		//bdiFeature.dispatchTopLevelGoal(new InvestOnCompanies());
+		// bdiFeature.dispatchTopLevelGoal(new InvestOnCompanies());
 
 	}
 }

@@ -2,6 +2,7 @@ package classes;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import jadex.commons.transformation.annotations.IncludeFields;
 
@@ -30,18 +31,34 @@ public class Deck {
 		companies.addAll(generateCompanies(2, Market.Color.Yellow, true));
 		companies.addAll(generateCompanies(2, Market.Color.Green, true));
 		companies.addAll(generateCompanies(1, Market.Color.Red, true));
-		
+
 		Collections.shuffle(companies);
-		
+
 	}
 
-	public ArrayList<Company> fetchCompanies(int number){
+	public ArrayList<Company> fetchCompanies(int number) {
 		ArrayList<Company> companies = new ArrayList<>();
-		for(int i = 0; i < number; i++){
+		for (int i = 0; i < Math.min(this.companies.size(), number); i++) {
 			companies.add(this.companies.remove(0));
 		}
 		return companies;
 	}
-	
-	
+
+	public void addCompany(Company company) {
+		company.owner = null;
+		company.currentInvestor = null;
+		company.currentOffer = 0;
+		Collections.shuffle(companies);
+	}
+
+	public void addCompanies(List<Company> companies) {
+		for (Company company : companies) {
+			company.owner = null;
+			company.currentInvestor = null;
+			company.currentOffer = 0;
+		}
+		this.companies.addAll(companies);
+		Collections.shuffle(this.companies);
+	}
+
 }
