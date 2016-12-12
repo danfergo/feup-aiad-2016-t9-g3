@@ -31,6 +31,7 @@ import org.jfree.data.general.DefaultPieDataset;
 
 import classes.Company;
 import classes.Deck;
+import classes.Investor;
 import classes.Manager;
 import classes.Market;
 import classes.Market.Fluctuation;
@@ -52,7 +53,9 @@ public class MarketWindow extends JFrame {
 	Market market;
 	List<Manager> managers;
 	
-	PlayerBalanceChart playerBalanceChart;
+	PlayerBalanceChart<Manager> managersBalanceChart;
+	PlayerBalanceChart<Investor> investorsBalanceChart;
+
 	CompanyBalanceChart companyValueChart;
 
 
@@ -60,7 +63,8 @@ public class MarketWindow extends JFrame {
 		super("Panic On Wall Street!");
 		this.market = market;
 		this.managers = managers;
-		this.playerBalanceChart = new PlayerBalanceChart();
+		this.managersBalanceChart = new PlayerBalanceChart<>();
+		this.investorsBalanceChart = new PlayerBalanceChart<>();
 		this.companyValueChart = new CompanyBalanceChart();
 		
 		setSize(900, 600);
@@ -110,23 +114,29 @@ public class MarketWindow extends JFrame {
 		//setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
-	JPanel drawPlayersChart() {
-		//JTabbedPane tabbedPane = new JTabbedPane();
+	JTabbedPane drawPlayersChart() {
+		JTabbedPane tabbedPane = new JTabbedPane();
 		
 		JPanel panel1 = new JPanel();
 		panel1.setLayout(new BorderLayout());
-		ChartPanel CP = new ChartPanel(playerBalanceChart.get());
+		ChartPanel CP = new ChartPanel(managersBalanceChart.get("Managers balance along time"));
 		panel1.add(CP, BorderLayout.CENTER);
-		/*tabbedPane.addTab("Players", null, panel1);
+		tabbedPane.addTab("Managers", null, panel1);
 
 		JComponent panel2 = new JPanel();
-		tabbedPane.addTab("Managers", null, panel2);
-
+		panel2.setLayout(new BorderLayout());
+		tabbedPane.addTab("Investors", null, panel2);
+		
+		ChartPanel CP2 = new ChartPanel(investorsBalanceChart.get("Investors balance along time"));
+		panel2.add(CP2, BorderLayout.CENTER);
+		
+		
+		/*
 		JComponent panel3 = new JPanel();
 		tabbedPane.addTab("Investors", null, panel3);
 */
 
-		return panel1;
+		return tabbedPane;
 
 	}
 
@@ -332,8 +342,10 @@ public class MarketWindow extends JFrame {
 	}
 	
 
-	public void storePlayersBalance(List<Player> players) {
-		this.playerBalanceChart.storeData(players);
+	public void storePlayersBalance(List<Manager> list, List<Investor> list2) {
+		this.managersBalanceChart.storeData(list);
+		this.investorsBalanceChart.storeData(list2);
+		
 	}
 
 }

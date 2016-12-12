@@ -35,14 +35,14 @@ public class Market {
 
 		}
 
-		int calcRevenue(int dicePosition){
+		int nextPosition(int dicePosition){
 			int newPosition = currentPosition + dice[dicePosition];
 			return Math.max(0, Math.min(newPosition, values.length - 1));
 		}
 		
 		int rollTheDice() {
 			currentDiceIndex = rnd.nextInt(dice.length);
-			currentPosition = calcRevenue(currentDiceIndex);
+			currentPosition = nextPosition(currentDiceIndex);
 			return getCurrentValue();
 		}
 
@@ -108,14 +108,19 @@ public class Market {
 	 * @param company
 	 * @return company next round expected value
 	 */
-	public float companyNextRoundExpectedRevenue(Company company){
-		float E = 0;
+	public double companyNextRoundExpectedRevenue(Company company){
+		double E = 0;
 		Fluctuation fluctuation = fluctuations.get(company.color);
-		float pX =  (1/(float)fluctuation.dice.length);
+		double pX =  (1/(double)fluctuation.dice.length);
 		for(int i = 0; i < fluctuation.dice.length; i++){
-			E += pX * fluctuation.calcRevenue(i);
+			E += pX * fluctuation.values[fluctuation.nextPosition(i)];
 		}
 		return company.x2 ? 2 * E : E;
+	}
+	
+	
+	public double companyNextRoundOpportunity(Company company){
+		return companyNextRoundExpectedRevenue(company) - company.currentOffer;
 	}
 	
 	public void incRound() {

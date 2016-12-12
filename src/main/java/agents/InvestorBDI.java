@@ -40,7 +40,7 @@ import services.IWallStreetService;
 @Agent
 @Service
 @ProvidedServices({ @ProvidedService(type = IInvestorService.class) })
-public class InvestorBDI extends PlayerBDI implements IInvestorService {
+public abstract class InvestorBDI extends PlayerBDI implements IInvestorService {
 
 	public InvestorBDI() {
 		super(PlayingMode.INVESTOR);
@@ -64,70 +64,4 @@ public class InvestorBDI extends PlayerBDI implements IInvestorService {
 
 	@Belief(dynamic = true)
 	List<Manager> managers = filterManagers(otherPlayers);
-
-	@Goal(excludemode = ExcludeMode.Never)
-	public static class InvestOnCompanies {
-
-		public InvestorBDI investor;
-
-		InvestOnCompanies(InvestorBDI investor) {
-			this.investor = investor;
-		}
-
-		@GoalContextCondition(beliefs = "gameState")
-		protected boolean mantain() {
-			return investor.gameState.equals(WallStreetAgent.GameState.NEGOTIATION);
-		}
-
-		@GoalTargetCondition(beliefs = "selfBalance")
-		protected boolean target() {
-			return investor.getSelfBalance() < 50;
-		}
-
-		@GoalCreationCondition(beliefs = { "gameState" })
-		public static InvestOnCompanies launch(InvestorBDI investor) {
-			return investor.gameState.equals(WallStreetAgent.GameState.NEGOTIATION) ? new InvestOnCompanies(investor)
-					: null;
-		}
-
-	}
-	
-
-	@Plan(trigger = @Trigger(goals = InvestOnCompanies.class))
-	protected void invest() {
-
-
-		Manager manager = managers.get(randomGenerator.nextInt(managers.size()));
-		int companyIndex = randomGenerator.nextInt(manager.getCompanies().size());
-
-		Company company = manager.getCompanies().get(companyIndex);
-
-		IManagerService managerService = (IManagerService) SServiceProvider
-				.getService(ia, manager.getComponentIdentifier(), IManagerService.class).get();
-		Company offer = company.clone();
-		offer.currentInvestor = (Investor)self;
-		offer.currentOffer = 20 + randomGenerator.nextInt(21);
-		
-		Boolean sucessfullInvestment = managerService.investOn(offer, false).get();
-		
-		if (sucessfullInvestment.equals(Boolean.TRUE)) {
-			manager.companies.set(companyIndex, offer);
-			companiesInvestOn++;
-			console.log("SUCCESS");
-		}else{
-			console.log("FAILED");
-		}
-		//if(companiesInvestOn >= )
-		//console.log("Number of companies: " + companiesInvestOn);
-		IExecutionFeature exe = ia.getComponentFeature(IExecutionFeature.class);
-		exe.waitForDelay(1000).get();
-	}
-
-	@AgentBody
-	public void body() {
-		super.body();
-		// bdiFeature.dispatchTopLevelGoal(new InvestOnCompanies());
-
-	}
-
 }

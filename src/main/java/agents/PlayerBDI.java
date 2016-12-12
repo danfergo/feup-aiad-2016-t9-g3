@@ -101,7 +101,7 @@ public abstract class PlayerBDI implements IPlayerService {
 	@Belief
 	protected List<Player> otherPlayers = new ArrayList<>();
 
-	private Market market;
+	protected Market market;
 
 	@AgentBody
 	public void body() {

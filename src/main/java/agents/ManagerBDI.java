@@ -44,7 +44,7 @@ import jadex.bdiv3.annotation.Trigger;
 @Agent
 @Service
 @ProvidedServices({ @ProvidedService(type = IManagerService.class) })
-public class ManagerBDI extends PlayerBDI implements IManagerService {
+public abstract class ManagerBDI extends PlayerBDI implements IManagerService {
 	public ManagerBDI() {
 		super(PlayingMode.MANAGER);
 	}
@@ -107,6 +107,7 @@ public class ManagerBDI extends PlayerBDI implements IManagerService {
 		}
 		return future;
 	}
+	
 
 	@Override
 	public IFuture<Boolean> closeDeal(Company company) {
@@ -127,18 +128,6 @@ public class ManagerBDI extends PlayerBDI implements IManagerService {
 		return future;
 	}
 
-	@Override
-	public IFuture<Company> informNewCompanyAuction(Company company) {
-		Future<Company> future = new Future<Company>();
-		float rnd = randomGenerator.nextInt(10);
-		if (rnd < 6) {
-			company.owner = (Manager) self;
-			company.currentOffer += 20 + randomGenerator.nextInt(5);
-			future.setResult(company);
-		} else {
-			future.setResult(null);
-		}
-		return future;
-	}
+
 
 }

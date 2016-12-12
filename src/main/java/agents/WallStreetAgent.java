@@ -107,6 +107,11 @@ public class WallStreetAgent implements IWallStreetService {
 	List<Manager> getManagers() {
 		return players.stream().filter(p -> p instanceof Manager).map(p -> (Manager) p).collect(Collectors.toList());
 	}
+	
+	List<Investor> getInvestors() {
+		return players.stream().filter(p -> p instanceof Investor).map(p -> (Investor) p).collect(Collectors.toList());
+	}
+	
 
 	List<Manager> getInGameManagers() {
 		return players.stream().filter(p -> p instanceof Manager && p.inGame).map(p -> (Manager) p)
@@ -243,7 +248,7 @@ public class WallStreetAgent implements IWallStreetService {
 
 	void manageGame() {
 		IExecutionFeature exe = ia.getComponentFeature(IExecutionFeature.class);
-		this.marketUI.storePlayersBalance(players);
+		this.marketUI.storePlayersBalance(getManagers(),getInvestors());
 		this.marketUI.storeCompanies(getManagersCompanies());
 		exe.waitForDelay(100).get();
 
@@ -251,7 +256,7 @@ public class WallStreetAgent implements IWallStreetService {
 			market.incRound();
 
 			this.marketUI.storeCompanies(getManagersCompanies());
-			this.marketUI.storePlayersBalance(players);
+			this.marketUI.storePlayersBalance(getManagers(),getInvestors());
 
 			changeTo(GameState.NEGOTIATION, true);
 			exe.waitForDelay(3000).get();
@@ -262,13 +267,13 @@ public class WallStreetAgent implements IWallStreetService {
 			applyInvestorsIncome();
 			applyManagersIncome();
 			applyManagmentCosts();
-			this.marketUI.storePlayersBalance(players);
+			this.marketUI.storePlayersBalance(getManagers(),getInvestors());
 
 			changeTo(GameState.SOLVING_MANAGERS_DEBTS, true);
 
 			solveManagersDebts();
 
-			this.marketUI.storePlayersBalance(players);
+			this.marketUI.storePlayersBalance(getManagers(),getInvestors());
 			changeTo(GameState.AUCTIONING_NEW_COMPANIES, true);
 
 			if (i < 4) {
