@@ -49,7 +49,7 @@ public class StartScreen extends JFrame implements ActionListener{
 			e.printStackTrace();
 		}
 		
-		
+		setResizable(false);
 	}
 
 	public int getNump() {
@@ -176,6 +176,7 @@ public class StartScreen extends JFrame implements ActionListener{
 		btnNewButton.addActionListener(this);
 		getContentPane().add(btnNewButton, BorderLayout.SOUTH);
 		pack();
+	    setLocationRelativeTo(null);
 		setVisible(true);
 	}
 	
@@ -185,7 +186,7 @@ public class StartScreen extends JFrame implements ActionListener{
 		panel.add(lblNewLabel);
 
 		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Stupid", "Inteligent"}));
+		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Dummy", "Inteligent"}));
 		comboBox.setActionCommand(player + " " + type);
 		comboBox.addActionListener(this);
 		panel.add(comboBox);
@@ -216,7 +217,7 @@ public class StartScreen extends JFrame implements ActionListener{
 			String[] ss = cb.getActionCommand().split(" ");
 			String type = (String)cb.getSelectedItem();
 			int intType = 0;
-			if(type.equals("Stupid")){
+			if(type.equals("Dummy")){
 				intType = 0;
 				
 			}

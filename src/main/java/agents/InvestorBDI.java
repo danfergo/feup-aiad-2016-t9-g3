@@ -19,6 +19,7 @@ import jadex.bdiv3.annotation.GoalTargetCondition;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.model.MProcessableElement.ExcludeMode;
 import jadex.bdiv3.annotation.Trigger;
+import jadex.bdiv3.features.IBDIAgentFeature;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.component.IExecutionFeature;
 import jadex.bridge.service.IServiceIdentifier;
@@ -31,6 +32,7 @@ import jadex.commons.future.IFuture;
 import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
+import jadex.micro.annotation.AgentFeature;
 import jadex.micro.annotation.ProvidedService;
 import jadex.micro.annotation.ProvidedServices;
 import services.IInvestorService;
@@ -42,15 +44,15 @@ import services.IWallStreetService;
 @ProvidedServices({ @ProvidedService(type = IInvestorService.class) })
 public abstract class InvestorBDI extends PlayerBDI implements IInvestorService {
 
+
+
+	
 	public InvestorBDI() {
 		super(PlayingMode.INVESTOR);
 	}
 
 	@Belief(dynamic = true)
 	WallStreetAgent.GameState anotherGameState = gameState;
-
-	@Belief
-	int companiesInvestOn = 0;
 
 	private static List<Manager> filterManagers(List<Player> players) {
 		List<Manager> investors = new ArrayList<>();
@@ -62,6 +64,11 @@ public abstract class InvestorBDI extends PlayerBDI implements IInvestorService 
 		return investors;
 	}
 
+	private void postOffer(Boolean sucessfull, Company offer){
+		List<Manager> investors = new ArrayList<>();
+
+	}
+	
 	@Belief(dynamic = true)
 	List<Manager> managers = filterManagers(otherPlayers);
 }

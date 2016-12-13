@@ -89,24 +89,7 @@ public abstract class ManagerBDI extends PlayerBDI implements IManagerService {
 		return self == null ? new ArrayList<>() : ((Manager) self).getCompanies();
 	}
 	
-	@Override
-	public IFuture<Boolean> investOn(Company offer, boolean close) {
-		Future<Boolean> future = new Future<>();
-		int index = myCompanies().indexOf(offer);
 
-		if (index != -1 && offer.currentOffer > myCompanies().get(index).currentOffer) {
-
-			Boolean success = wallStreet.informOffer(offer).get();
-
-			if(success){
-				myCompanies().set(index, offer);
-			}
-			future.setResult(success);
-		} else {
-			future.setResult(false);
-		}
-		return future;
-	}
 	
 
 	@Override

@@ -150,7 +150,7 @@ public abstract class PlayerBDI implements IPlayerService {
 	}
 
 	@Override
-	public IFuture<Void> informConfirmedOffer(Company company) {
+	public IFuture<Void> informOfferUpdate(Company company) {
 		Manager owner = (Manager) otherPlayers.get(otherPlayers.indexOf(company.owner));
 		owner.companies.add(owner.companies.indexOf(company), company);
 		return Future.DONE;

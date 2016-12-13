@@ -16,7 +16,7 @@ public class Market {
 
 	private Random rnd;
 	
-	private int round;
+	public int round;
 
 	@IncludeFields
 	public class Fluctuation {

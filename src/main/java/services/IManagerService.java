@@ -10,9 +10,8 @@ import jadex.commons.future.ISubscriptionIntermediateFuture;
 import jadex.commons.future.SubscriptionIntermediateFuture;
 
 public interface IManagerService {
-	IFuture <Boolean> investOn(Company company, boolean close);
+	IFuture <Boolean> investOn(Company company);
 	IFuture <Boolean> closeDeal(Company company);
 	IFuture <List<Company>> consultWhatCompaniesToSell();
 	IFuture<Company> informNewCompanyAuction(Company company);
-
 }

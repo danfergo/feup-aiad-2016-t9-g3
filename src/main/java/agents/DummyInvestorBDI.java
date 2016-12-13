@@ -18,6 +18,11 @@ import services.IManagerService;
 
 @Agent
 public class DummyInvestorBDI extends InvestorBDI{
+	
+	private int minOffer = 5;
+	private int maxOffer = 35;
+	private float pClose = 0.5f;
+	
 	@Goal(excludemode = ExcludeMode.Never)
 	public static class InvestOnCompanies {
 
@@ -48,30 +53,33 @@ public class DummyInvestorBDI extends InvestorBDI{
 
 	@Plan(trigger = @Trigger(goals = InvestOnCompanies.class))
 	protected void invest() {
-
 		Manager manager = managers.get(randomGenerator.nextInt(managers.size()));
 		int companyIndex = randomGenerator.nextInt(manager.getCompanies().size());
 
+		IExecutionFeature exe = ia.getComponentFeature(IExecutionFeature.class);
+		exe.waitForDelay(600).get();
+		
 		Company company = manager.getCompanies().get(companyIndex);
-
+		if(self.equals(company.currentInvestor) || company.closed == true){
+			return;
+		}
+		
+		
 		IManagerService managerService = (IManagerService) SServiceProvider
 				.getService(ia, manager.getComponentIdentifier(), IManagerService.class).get();
 		Company offer = company.clone();
 		offer.currentInvestor = (Investor)self;
-		offer.currentOffer = 20 + randomGenerator.nextInt(21);
-		
-		Boolean sucessfullInvestment = managerService.investOn(offer, false).get();
-		
+		offer.currentOffer = minOffer + randomGenerator.nextInt(maxOffer - minOffer + 1);
+		offer.closed = randomGenerator.nextFloat() <= pClose;
+
+		Boolean sucessfullInvestment = managerService.investOn(offer).get();
 		if (sucessfullInvestment.equals(Boolean.TRUE)) {
 			manager.companies.set(companyIndex, offer);
-			companiesInvestOn++;
 			console.log("SUCCESS");
 		}else{
 			console.log("FAILED");
 		}
-		//if(companiesInvestOn >= )
-		//console.log("Number of companies: " + companiesInvestOn);
-		IExecutionFeature exe = ia.getComponentFeature(IExecutionFeature.class);
-		exe.waitForDelay(1000).get();
+		
+
 	}
 }

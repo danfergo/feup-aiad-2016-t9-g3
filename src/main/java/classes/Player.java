@@ -40,4 +40,9 @@ public abstract class Player {
 		return this.componentIdentifier;
 	}
 	
+	@Override
+	public String toString(){
+		return this.getComponentIdentifier().getLocalName();
+	}
+	
 }

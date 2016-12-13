@@ -14,19 +14,15 @@ import org.jfree.data.xy.XYSeriesCollection;
 import classes.Company;
 import classes.Player;
 
-public class CompanyBalanceChart {
+public class CompanyBalanceChart extends AbstractChart {
 	JFreeChart xylineChart;
-	double baseTime;
-
-	private XYSeriesCollection dataset;
 	private Map<Integer, XYSeries> companySeries;
 
 	CompanyBalanceChart() {
+		super();
+		
 		companySeries = new HashMap<>();
-		baseTime = System.currentTimeMillis();
-		dataset = new XYSeriesCollection();
 
-		final XYSeriesCollection dataset = new XYSeriesCollection();
 	}
 
 	public XYDataset storeData(List<Company> companies) {
@@ -44,7 +40,6 @@ public class CompanyBalanceChart {
 	}
 
 	JFreeChart get() {
-		return ChartFactory.createXYLineChart("Company public value", "Time (s)", "Value ($)", dataset,
-				PlotOrientation.VERTICAL, true, true, false);
+		return super.get("Company public value", "Time (s)", "Value ($)");
 	}
 }

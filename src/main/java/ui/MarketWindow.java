@@ -29,6 +29,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 
+import agents.WallStreetAgent;
 import classes.Company;
 import classes.Deck;
 import classes.Investor;
@@ -78,8 +79,8 @@ public class MarketWindow extends JFrame {
 	public void draw() {
 
 		// JScrollPane scrPane = new JScrollPane(container);
-
-
+		//setVisible(false);
+		
 		JPanel container = new JPanel();
 
 		JPanel window = new JPanel();
@@ -87,7 +88,6 @@ public class MarketWindow extends JFrame {
 		BorderLayout borderLayout = new BorderLayout();
 		
 		
-		setContentPane(window);
 
 		window.setLayout(borderLayout);
 		
@@ -111,6 +111,10 @@ public class MarketWindow extends JFrame {
 
 		//mainGrid.addLayoutComponent("something", new Label("yyyy"));
 		pack();
+
+		setContentPane(window);
+
+		//setVisible(true);
 		//setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
@@ -345,6 +349,13 @@ public class MarketWindow extends JFrame {
 	public void storePlayersBalance(List<Manager> list, List<Investor> list2) {
 		this.managersBalanceChart.storeData(list);
 		this.investorsBalanceChart.storeData(list2);
+		
+	}
+
+	public void storeState(WallStreetAgent.GameState gameState) {
+		this.managersBalanceChart.storeState(gameState);
+		this.investorsBalanceChart.storeState(gameState);
+		this.companyValueChart.storeState(gameState);
 		
 	}
 
